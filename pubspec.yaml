@@ -34,6 +34,11 @@ dependencies:
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.8
+  provider: ^6.0.0
+  url_launcher: ^6.2.5
+  video_player: ^2.8.2
+  youtube_player_flutter: ^8.1.2
+  webview_flutter: ^4.7.0
 
 dev_dependencies:
   flutter_test:
@@ -87,3 +92,12 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package
+
+  assets:
+    - assets/gbvshield.png
+    - assets/consent.png
+    - assets/caution.png
+    - assets/chatbot.png
+    - assets/tipoftheday.png
+    - assets/zawada.png
+    - assets/gbvcommunity.png
