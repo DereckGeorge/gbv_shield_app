@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'screens/splash/splash_screen.dart';
 import 'screens/auth/login_screen.dart';
 import 'screens/auth/signup_screen.dart';
 import 'screens/home/home_screen.dart';
-import 'package:provider/provider.dart';
 import 'screens/auth/provider/auth_provider.dart';
 import 'screens/home/provider/story_provider.dart';
+import 'screens/learn/learn_screen.dart';
+import 'screens/report/report_screen.dart';
 // Temporarily remove screen imports and routes until files are created
 
 void main() {
@@ -52,6 +54,8 @@ class MyApp extends StatelessWidget {
         '/login': (context) => const LoginScreen(),
         '/signup': (context) => const SignupScreen(),
         '/home': (context) => const HomeScreen(),
+        '/learn': (context) => const LearnScreen(),
+        '/report': (context) => const ReportScreen(),
       },
     );
   }
