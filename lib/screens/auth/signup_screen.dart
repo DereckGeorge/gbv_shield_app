@@ -32,11 +32,14 @@ class _SignupScreenState extends State<SignupScreen> {
               Center(child: Image.asset('assets/gbvshield.png', width: 80)),
               const SizedBox(height: 16),
               const Center(
-                child: Text('Sign Up',
-                    style: TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                        color: Color(0xFF7C3AED))),
+                child: Text(
+                  'Sign Up',
+                  style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF7C3AED),
+                  ),
+                ),
               ),
               const SizedBox(height: 8),
               const Center(
@@ -76,7 +79,10 @@ class _SignupScreenState extends State<SignupScreen> {
                 ),
               ),
               const SizedBox(height: 16),
-              Text('Confirm Password*', style: TextStyle(fontWeight: FontWeight.w500)),
+              Text(
+                'Confirm Password*',
+                style: TextStyle(fontWeight: FontWeight.w500),
+              ),
               TextField(
                 controller: _confirmPasswordController,
                 obscureText: true,
@@ -96,12 +102,14 @@ class _SignupScreenState extends State<SignupScreen> {
                   backgroundColor: Color(0xFF7C3AED),
                   padding: EdgeInsets.symmetric(vertical: 16),
                   shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(6)),
+                    borderRadius: BorderRadius.circular(6),
+                  ),
                 ),
                 onPressed: _loading
                     ? null
                     : () async {
-                        if (_passwordController.text != _confirmPasswordController.text) {
+                        if (_passwordController.text !=
+                            _confirmPasswordController.text) {
                           setState(() => _error = 'Passwords do not match');
                           return;
                         }
@@ -138,11 +146,14 @@ class _SignupScreenState extends State<SignupScreen> {
                   padding: EdgeInsets.symmetric(vertical: 14),
                   side: BorderSide(color: Colors.black12),
                   shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(6)),
+                    borderRadius: BorderRadius.circular(6),
+                  ),
                 ),
                 icon: Icon(Icons.g_mobiledata, color: Colors.black, size: 28),
-                label: Text('Sign up with Google',
-                    style: TextStyle(color: Colors.black)),
+                label: Text(
+                  'Sign up with Google',
+                  style: TextStyle(color: Colors.black),
+                ),
                 onPressed: () {}, // Placeholder
               ),
               const SizedBox(height: 12),
@@ -151,13 +162,16 @@ class _SignupScreenState extends State<SignupScreen> {
                   backgroundColor: Colors.black,
                   padding: EdgeInsets.symmetric(vertical: 14),
                   shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(6)),
+                    borderRadius: BorderRadius.circular(6),
+                  ),
                 ),
                 onPressed: () {
                   Navigator.pushReplacementNamed(context, '/home');
                 },
-                child: Text('Continue Anonymously',
-                    style: TextStyle(color: Colors.white)),
+                child: Text(
+                  'Continue Anonymously',
+                  style: TextStyle(color: Colors.white),
+                ),
               ),
               const SizedBox(height: 18),
               Center(
@@ -171,16 +185,21 @@ class _SignupScreenState extends State<SignupScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text("Already have an account? ",
-                      style: TextStyle(fontSize: 14, color: Colors.black)),
+                  Text(
+                    "Already have an account? ",
+                    style: TextStyle(fontSize: 14, color: Colors.black),
+                  ),
                   GestureDetector(
                     onTap: () {
                       Navigator.pushReplacementNamed(context, '/login');
                     },
-                    child: Text('Log in',
-                        style: TextStyle(
-                            color: Color(0xFF7C3AED),
-                            fontWeight: FontWeight.bold)),
+                    child: Text(
+                      'Log in',
+                      style: TextStyle(
+                        color: Color(0xFF7C3AED),
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                   ),
                 ],
               ),
