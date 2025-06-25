@@ -11,3 +11,4 @@ class Story {
     this.buttonText,
   });
 }
+ 
