@@ -69,12 +69,14 @@ class _LearnScreenState extends State<LearnScreen> {
       currentIndex: 1,
       onTab: (i) {
         if (i == 0) {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (_) => const HomeScreen()),
-          );
+          Navigator.pushReplacementNamed(context, '/home');
+        } else if (i == 1) {
+          Navigator.pushReplacementNamed(context, '/learn');
+        } else if (i == 2) {
+          Navigator.pushReplacementNamed(context, '/report');
+        } else if (i == 3) {
+          Navigator.pushReplacementNamed(context, '/profile');
         }
-        // Add navigation for Report/Profile as needed
       },
       child: SafeArea(
         child: ListView(
