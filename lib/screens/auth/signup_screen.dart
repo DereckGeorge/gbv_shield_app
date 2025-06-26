@@ -117,16 +117,18 @@ class _SignupScreenState extends State<SignupScreen> {
                           _loading = true;
                           _error = null;
                         });
-                        final success = await authProvider.signup(
-                          _nameController.text,
-                          _emailController.text,
+                        final success = await authProvider.register(
+                          _nameController.text.trim(),
+                          _emailController.text.trim(),
                           _passwordController.text,
                         );
-                        setState(() => _loading = false);
-                        if (success) {
-                          Navigator.pushReplacementNamed(context, '/home');
-                        } else {
-                          setState(() => _error = 'Signup failed');
+                        if (mounted) {
+                          setState(() => _loading = false);
+                          if (success) {
+                            Navigator.pushReplacementNamed(context, '/home');
+                          } else {
+                            setState(() => _error = authProvider.error ?? 'Registration failed');
+                          }
                         }
                       },
                 child: _loading

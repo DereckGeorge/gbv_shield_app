@@ -19,6 +19,18 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     final authProvider = Provider.of<AuthProvider>(context);
+
+    // Show loading indicator while provider is initializing
+    if (!authProvider.isInitialized) {
+      return const Scaffold(
+        body: Center(
+          child: CircularProgressIndicator(
+            color: Color(0xFF7C3AED),
+          ),
+        ),
+      );
+    }
+
     return Scaffold(
       body: SingleChildScrollView(
         child: Padding(
@@ -69,9 +81,18 @@ class _LoginScreenState extends State<LoginScreen> {
               const SizedBox(height: 8),
               Align(
                 alignment: Alignment.centerRight,
-                child: Text(
-                  'Forgot your password?',
-                  style: TextStyle(fontSize: 12, color: Colors.grey),
+                child: GestureDetector(
+                  onTap: () {
+                    Navigator.pushNamed(context, '/forgot-password');
+                  },
+                  child: Text(
+                    'Forgot your password?',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Color(0xFF7C3AED),
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
                 ),
               ),
               if (_error != null)
@@ -96,14 +117,16 @@ class _LoginScreenState extends State<LoginScreen> {
                           _error = null;
                         });
                         final success = await authProvider.login(
-                          _emailController.text,
+                          _emailController.text.trim(),
                           _passwordController.text,
                         );
-                        setState(() => _loading = false);
-                        if (success) {
-                          Navigator.pushReplacementNamed(context, '/home');
-                        } else {
-                          setState(() => _error = 'Invalid credentials');
+                        if (mounted) {
+                          setState(() => _loading = false);
+                          if (success) {
+                            Navigator.pushReplacementNamed(context, '/home');
+                          } else {
+                            setState(() => _error = authProvider.error ?? 'Login failed');
+                          }
                         }
                       },
                 child: _loading
