@@ -14,6 +14,7 @@ import 'screens/community/community_chat_screen.dart';
 import 'screens/dummy_notepad/dummy_notepad_screen.dart';
 import 'screens/profile/profile_screen.dart';
 import 'providers/tip_provider.dart';
+import 'providers/learn_provider.dart';
 // Temporarily remove screen imports and routes until files are created
 
 void main() async {
@@ -46,6 +47,11 @@ class MyApp extends StatelessWidget {
           update: (context, auth, previous) => TipProvider(auth),
           lazy: false,
         ),
+        ChangeNotifierProxyProvider<AuthProvider, LearnProvider>(
+          create: (context) => LearnProvider(context.read<AuthProvider>()),
+          update: (context, auth, previous) => LearnProvider(auth),
+          lazy: false,
+        ),
       ],
       child: Consumer<AuthProvider>(
         builder: (context, authProvider, _) {
@@ -56,12 +62,12 @@ class MyApp extends StatelessWidget {
               primaryColor: const Color(0xFF7C3AED),
               scaffoldBackgroundColor: Colors.white,
             ),
-            initialRoute: '/login',
+            initialRoute: '/splash',
             routes: {
+              '/splash': (context) => const SplashScreen(),
               '/login': (context) => const LoginScreen(),
               '/signup': (context) => const SignupScreen(),
               '/forgot-password': (context) => const ForgotPasswordScreen(),
-              '/splash': (context) => const SplashScreen(),
               '/home': (context) => const HomeScreen(),
               '/learn': (context) => const LearnScreen(),
               '/report': (context) => const ReportScreen(),
