@@ -1,11 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../../widgets/base_scaffold.dart';
+import 'my_reports_screen.dart';
+import '../auth/provider/auth_provider.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    final authProvider = Provider.of<AuthProvider>(context);
+    final user = authProvider.user;
+
     return BaseScaffold(
       currentIndex: 3,
       onTab: (i) {
@@ -103,18 +109,21 @@ class ProfileScreen extends StatelessWidget {
                     radius: 40,
                     backgroundColor: Color(0xFF7C3AED).withOpacity(0.1),
                     child: Image.asset(
-                      'assets/avatar.png',
+                      'assets/Avatar.png',
                       width: 60,
                       height: 60,
                     ),
                   ),
                   SizedBox(height: 12),
                   Text(
-                    'Lora Medusa',
+                    user?.name ?? 'Anonymous User',
                     style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
                   ),
                   SizedBox(height: 4),
-                  Text('ID: 234658', style: TextStyle(color: Colors.black54)),
+                  Text(
+                    user != null ? 'ID: ${user.id}' : '',
+                    style: TextStyle(color: Colors.black54),
+                  ),
                   SizedBox(height: 8),
                   Container(
                     padding: EdgeInsets.symmetric(horizontal: 12, vertical: 4),
@@ -151,7 +160,13 @@ class ProfileScreen extends StatelessWidget {
                   ListTile(
                     title: Text('Emergency Contacts'),
                     trailing: Icon(Icons.arrow_forward_ios_rounded, size: 16),
-                    onTap: () {}, // TODO: Navigate
+                    onTap: () {
+                      Navigator.pushNamed(
+                        context,
+                        '/report',
+                        arguments: {'tab': 0}, // 0 is the emergency contacts tab
+                      );
+                    },
                   ),
                   Divider(height: 1),
                   ListTile(
@@ -177,7 +192,14 @@ class ProfileScreen extends StatelessWidget {
                   ListTile(
                     title: Text('My Reports'),
                     trailing: Icon(Icons.arrow_forward_ios_rounded, size: 16),
-                    onTap: () {}, // TODO: Navigate
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const MyReportsScreen(),
+                        ),
+                      );
+                    },
                   ),
                   Divider(height: 1),
                   ListTile(
