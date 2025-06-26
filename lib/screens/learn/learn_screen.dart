@@ -146,66 +146,66 @@ class _LearnScreenState extends State<LearnScreen> {
         child: Consumer<LearnProvider>(
           builder: (context, learnProvider, _) {
             return Column(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.only(
-                    left: 20,
-                    right: 20,
-                    top: 16,
-                    bottom: 8,
+          children: [
+            Padding(
+              padding: const EdgeInsets.only(
+                left: 20,
+                right: 20,
+                top: 16,
+                bottom: 8,
+              ),
+              child: Row(
+                children: [
+                  Icon(
+                    Icons.menu_book_outlined,
+                    color: Color(0xFF7C3AED),
+                    size: 28,
                   ),
-                  child: Row(
-                    children: [
-                      Icon(
-                        Icons.menu_book_outlined,
-                        color: Color(0xFF7C3AED),
-                        size: 28,
-                      ),
-                      SizedBox(width: 8),
-                      Text(
-                        'Learn',
-                        style: TextStyle(
-                          color: Color(0xFF7C3AED),
-                          fontWeight: FontWeight.bold,
-                          fontSize: 22,
-                        ),
-                      ),
-                    ],
+                  SizedBox(width: 8),
+                  Text(
+                    'Learn',
+                    style: TextStyle(
+                      color: Color(0xFF7C3AED),
+                      fontWeight: FontWeight.bold,
+                      fontSize: 22,
+                    ),
                   ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: TextField(
+                ],
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: TextField(
                           controller: _searchController,
                           onChanged: (value) {
                             // TODO: Implement search functionality
                           },
-                          decoration: InputDecoration(
-                            hintText: 'Search resources...',
-                            prefixIcon: Icon(Icons.search),
-                            contentPadding: EdgeInsets.symmetric(
-                              vertical: 0,
-                              horizontal: 12,
-                            ),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            filled: true,
-                            fillColor: Colors.white,
-                          ),
+                      decoration: InputDecoration(
+                        hintText: 'Search resources...',
+                        prefixIcon: Icon(Icons.search),
+                        contentPadding: EdgeInsets.symmetric(
+                          vertical: 0,
+                          horizontal: 12,
                         ),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        filled: true,
+                        fillColor: Colors.white,
                       ),
-                      SizedBox(width: 10),
+                    ),
+                  ),
+                  SizedBox(width: 10),
                       PopupMenuButton<String?>(
                         initialValue: learnProvider.selectedCategoryId,
                         child: Container(
-                          padding: EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 12,
-                          ),
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 12,
+                      ),
                           decoration: BoxDecoration(
                             color: Colors.grey[300],
                             borderRadius: BorderRadius.circular(8),
@@ -287,10 +287,10 @@ class _LearnScreenState extends State<LearnScreen> {
                             ),
                           ),
                         ],
-                      ),
-                    ],
                   ),
-                ),
+                ],
+              ),
+            ),
                 if (learnProvider.error != null)
                   Padding(
                     padding: const EdgeInsets.all(16.0),
@@ -318,63 +318,63 @@ class _LearnScreenState extends State<LearnScreen> {
 
                         final learn = learnProvider.learns[index];
                         return Padding(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 20,
-                            vertical: 10,
-                          ),
-                          child: GestureDetector(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 10,
+                ),
+                child: GestureDetector(
                             onTap: () => _handleLearnTap(context, learn),
-                            child: Card(
-                              elevation: 4,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(16),
+                  child: Card(
+                    elevation: 4,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Stack(
+                          children: [
+                            ClipRRect(
+                              borderRadius: BorderRadius.vertical(
+                                top: Radius.circular(16),
                               ),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Stack(
-                                    children: [
-                                      ClipRRect(
-                                        borderRadius: BorderRadius.vertical(
-                                          top: Radius.circular(16),
-                                        ),
                                         child: _buildMediaPreview(learn),
                                       ),
                                       if (learn.category != null)
-                                        Positioned(
-                                          top: 12,
-                                          left: 12,
-                                          child: Container(
-                                            padding: EdgeInsets.symmetric(
-                                              horizontal: 10,
-                                              vertical: 4,
-                                            ),
-                                            decoration: BoxDecoration(
-                                              color: Colors.black.withOpacity(0.7),
-                                              borderRadius: BorderRadius.circular(8),
-                                            ),
-                                            child: Text(
+                            Positioned(
+                              top: 12,
+                              left: 12,
+                              child: Container(
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: 10,
+                                  vertical: 4,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: Colors.black.withOpacity(0.7),
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: Text(
                                               learn.category!.name,
-                                              style: TextStyle(
-                                                color: Colors.white,
-                                                fontSize: 12,
-                                                fontWeight: FontWeight.w500,
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                    ],
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w500,
+                                    ),
                                   ),
-                                  Padding(
+                                ),
+                              ),
+                          ],
+                        ),
+                        Padding(
                                     padding: const EdgeInsets.all(16.0),
                                     child: Column(
                                       crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
                                         Text(
                                           learn.title,
-                                          style: TextStyle(
+                            style: TextStyle(
                                             fontSize: 18,
-                                            fontWeight: FontWeight.bold,
+                              fontWeight: FontWeight.bold,
                                           ),
                                         ),
                                         SizedBox(height: 8),
@@ -382,17 +382,17 @@ class _LearnScreenState extends State<LearnScreen> {
                                           learn.content,
                                           maxLines: 3,
                                           overflow: TextOverflow.ellipsis,
-                                          style: TextStyle(
-                                            fontSize: 14,
+                            style: TextStyle(
+                              fontSize: 14,
                                             color: Colors.grey[600],
                                           ),
                                         ),
                                         SizedBox(height: 16),
                                         Row(
-                                          children: [
-                                            Text(
+                            children: [
+                                Text(
                                               learn.createdAt.toString().split(' ')[0],
-                                              style: TextStyle(
+                                  style: TextStyle(
                                                 fontSize: 12,
                                                 color: Colors.grey,
                                               ),
@@ -417,9 +417,9 @@ class _LearnScreenState extends State<LearnScreen> {
                                                 }
                                               },
                                             ),
-                                            Text(
+                                Text(
                                               learn.likesCount.toString(),
-                                              style: TextStyle(
+                                  style: TextStyle(
                                                 color: Colors.grey,
                                               ),
                                             ),
@@ -437,9 +437,9 @@ class _LearnScreenState extends State<LearnScreen> {
                                                 } catch (e) {
                                                   ScaffoldMessenger.of(context).showSnackBar(
                                                     SnackBar(content: Text(e.toString())),
-                                                  );
-                                                }
-                                              },
+                                    );
+                                  }
+                                },
                                               icon: Icon(
                                                 learn.isRead ? Icons.check_circle : Icons.check_circle_outline,
                                                 color: learn.isRead ? Colors.green : Colors.grey,
@@ -453,20 +453,20 @@ class _LearnScreenState extends State<LearnScreen> {
                                               ),
                                             ),
                                           ],
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ],
                               ),
-                            ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                           ),
                         );
                       },
-                    ),
-                  ),
                 ),
-              ],
+              ),
+            ),
+          ],
             );
           },
         ),

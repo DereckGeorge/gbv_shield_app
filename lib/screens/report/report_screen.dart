@@ -1,6 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:image_picker/image_picker.dart';
 import '../../widgets/base_scaffold.dart';
+import '../../models/incident.dart';
+import '../../models/incident_type.dart';
+import '../../models/incident_support.dart';
+import '../../models/emergency_contact.dart';
+import '../../providers/incident_provider.dart';
+import '../../providers/emergency_contact_provider.dart';
+import '../../utils/permission_handler.dart';
 
 class ReportScreen extends StatefulWidget {
   const ReportScreen({Key? key}) : super(key: key);
@@ -12,63 +21,84 @@ class ReportScreen extends StatefulWidget {
 class _ReportScreenState extends State<ReportScreen> {
   int _tab = 1; // 0 = Emergency, 1 = Report
   final _formKey = GlobalKey<FormState>();
-  String? _violenceType;
-  String? _supportType;
-  String? _incidentDesc;
-  String? _incidentDate;
-  String? _incidentLocation;
-  String? _who;
-  String? _firstTime = 'Yes';
-  String? _safe = 'Yes';
-  String? _contact = 'Yes';
-  bool _confidential = false;
+  String? _incidentTypeId;
+  String? _incidentSupportId;
+  String? _description;
+  DateTime? _incidentDate;
+  String? _isFirstTime = 'yes';
+  String? _feelSafeNow = 'yes';
+  bool _likeToBeContacted = true;
+  String? _evidenceFilePath;
 
-  final List<String> violenceTypes = [
-    'Physical',
-    'Emotional',
-    'Sexual',
-    'Economic',
-    'Other',
-  ];
-  final List<String> supportTypes = [
-    'Medical',
-    'Legal',
-    'Counseling',
-    'Shelter',
-    'Other',
-  ];
-
-  // Mock API data for contacts
-  final List<Map<String, String>> contacts = [
-    {
-      'title': 'Police station',
-      'desc':
-          'Local police station providing 24/7 assistance for emergencies, crime reporting and public safety concerns.',
-      'phone': '0782200300',
-    },
-    {
-      'title': 'Local Hospital',
-      'desc':
-          'Nearest hospital offering 24/7 medical services, emergency care and health consultations.',
-      'phone': '0782200300',
-    },
-    {
-      'title': 'LP Cyber Helpline',
-      'desc':
-          'Call us for guidance on what steps to take after experiencing online violence, Psychological support and counseling from mental health professionals and Legal assistance.',
-      'phone': '0752200305',
-    },
-  ];
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final incidentProvider = context.read<IncidentProvider>();
+      final emergencyProvider = context.read<EmergencyContactProvider>();
+      
+      incidentProvider.loadIncidentTypes();
+      incidentProvider.loadIncidentSupports();
+      emergencyProvider.loadNearbyContacts();
+    });
+  }
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    final args =
-        ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
+    final args = ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
     if (args != null && args.containsKey('tab')) {
       setState(() {
         _tab = args['tab'] ?? 1;
       });
+    }
+  }
+
+  Future<void> _pickEvidence() async {
+    final ImagePicker picker = ImagePicker();
+    final XFile? image = await picker.pickImage(source: ImageSource.gallery);
+    
+    if (image != null) {
+      setState(() {
+        _evidenceFilePath = image.path;
+      });
+    }
+  }
+
+  Future<void> _submitReport() async {
+    if (!_formKey.currentState!.validate()) return;
+    _formKey.currentState!.save();
+
+    if (_incidentDate == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Please select incident date')),
+      );
+      return;
+    }
+
+    try {
+      final incident = Incident(
+        incidentTypeId: _incidentTypeId!,
+        description: _description!,
+        incidentDate: _incidentDate!,
+        isFirstTime: _isFirstTime,
+        feelSafeNow: _feelSafeNow,
+        incidentSupportId: _incidentSupportId,
+        likeToBeContacted: _likeToBeContacted,
+      );
+
+      final provider = context.read<IncidentProvider>();
+      await provider.reportIncident(incident, _evidenceFilePath);
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Report submitted successfully')),
+      );
+
+      Navigator.pushReplacementNamed(context, '/profile');
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to submit report: $e')),
+      );
     }
   }
 
@@ -119,12 +149,8 @@ class _ReportScreenState extends State<ReportScreen> {
                   Expanded(
                     child: OutlinedButton(
                       style: OutlinedButton.styleFrom(
-                        backgroundColor: _tab == 0
-                            ? Color(0xFF7C3AED)
-                            : Colors.white,
-                        foregroundColor: _tab == 0
-                            ? Colors.white
-                            : Colors.black,
+                        backgroundColor: _tab == 0 ? Color(0xFF7C3AED) : Colors.white,
+                        foregroundColor: _tab == 0 ? Colors.white : Colors.black,
                         side: BorderSide(color: Color(0xFF7C3AED)),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8),
@@ -138,12 +164,8 @@ class _ReportScreenState extends State<ReportScreen> {
                   Expanded(
                     child: OutlinedButton(
                       style: OutlinedButton.styleFrom(
-                        backgroundColor: _tab == 1
-                            ? Color(0xFF7C3AED)
-                            : Colors.white,
-                        foregroundColor: _tab == 1
-                            ? Colors.white
-                            : Colors.black,
+                        backgroundColor: _tab == 1 ? Color(0xFF7C3AED) : Colors.white,
+                        foregroundColor: _tab == 1 ? Colors.white : Colors.black,
                         side: BorderSide(color: Color(0xFF7C3AED)),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8),
@@ -166,11 +188,40 @@ class _ReportScreenState extends State<ReportScreen> {
   }
 
   Widget _buildEmergencyTab() {
-    return ListView(
+    return Consumer<EmergencyContactProvider>(
+      builder: (context, provider, child) {
+        if (provider.isLoading) {
+          return Center(child: CircularProgressIndicator());
+        }
+
+        if (provider.error != null) {
+          return Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(provider.error!),
+                ElevatedButton(
+                  onPressed: () => provider.loadNearbyContacts(),
+                  child: Text('Retry'),
+                ),
+              ],
+            ),
+          );
+        }
+
+        final contacts = provider.contacts;
+        if (contacts.isEmpty) {
+          return Center(
+            child: Text('No emergency contacts found in your area'),
+          );
+        }
+
+        return ListView.builder(
       padding: const EdgeInsets.all(20),
-      children: contacts
-          .map(
-            (c) => Card(
+          itemCount: contacts.length,
+          itemBuilder: (context, index) {
+            final contact = contacts[index];
+            return Card(
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(16),
               ),
@@ -182,17 +233,26 @@ class _ReportScreenState extends State<ReportScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      c['title']!,
+                      contact.name,
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 18,
                       ),
                     ),
+                    if (contact.description != null) ...[
                     SizedBox(height: 6),
                     Text(
-                      c['desc']!,
+                        contact.description!,
                       style: TextStyle(fontSize: 14, color: Colors.black87),
                     ),
+                    ],
+                    if (contact.distanceKm != null) ...[
+                      SizedBox(height: 6),
+                      Text(
+                        '${contact.distanceKm!.toStringAsFixed(1)} km away',
+                        style: TextStyle(fontSize: 14, color: Colors.black54),
+                      ),
+                    ],
                     SizedBox(height: 16),
                     Row(
                       children: [
@@ -207,14 +267,17 @@ class _ReportScreenState extends State<ReportScreen> {
                               padding: EdgeInsets.symmetric(vertical: 12),
                             ),
                             onPressed: () async {
-                              final phone = c['phone']!;
-                              final uri = Uri.parse('tel:$phone');
-                              if (await canLaunchUrl(uri)) {
-                                await launchUrl(uri);
+                              final hasPermission = await PermissionUtil.checkAndRequestPhonePermission();
+                              if (hasPermission) {
+                                await PermissionUtil.makePhoneCall(contact.phoneNumber);
+                              } else {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(content: Text('Phone permission denied')),
+                                );
                               }
                             },
                             child: Text(
-                              'Call: ${c['phone']}',
+                              'Call: ${contact.phoneNumber}',
                               style: TextStyle(fontWeight: FontWeight.bold),
                             ),
                           ),
@@ -226,13 +289,20 @@ class _ReportScreenState extends State<ReportScreen> {
                   ],
                 ),
               ),
-            ),
-          )
-          .toList(),
+            );
+          },
+        );
+      },
     );
   }
 
   Widget _buildReportTab() {
+    return Consumer<IncidentProvider>(
+      builder: (context, provider, child) {
+        if (provider.isLoading) {
+          return Center(child: CircularProgressIndicator());
+        }
+
     return SingleChildScrollView(
       padding: const EdgeInsets.all(20),
       child: Form(
@@ -248,180 +318,225 @@ class _ReportScreenState extends State<ReportScreen> {
               ),
               child: Text(
                 'Use this form to report an incident of gender-based violence. Your report will be treated confidentially and sent to our support team.',
-                style: TextStyle(fontSize: 14, color: Colors.black87),
+                    style: TextStyle(fontSize: 14),
               ),
             ),
-            SizedBox(height: 18),
-            Text('Type of Violence Experienced'),
-            SizedBox(height: 6),
+                SizedBox(height: 20),
             DropdownButtonFormField<String>(
-              value: _violenceType,
-              items: violenceTypes
-                  .map((v) => DropdownMenuItem(value: v, child: Text(v)))
-                  .toList(),
-              onChanged: (v) => setState(() => _violenceType = v),
+                  value: _incidentTypeId,
               decoration: InputDecoration(
-                hintText: 'Select all that relate...',
+                    labelText: 'Type of Violence',
                 border: OutlineInputBorder(),
-                contentPadding: EdgeInsets.symmetric(horizontal: 12),
-              ),
-            ),
-            SizedBox(height: 18),
-            Text('Describe the incident'),
-            SizedBox(height: 6),
+                  ),
+                  items: provider.incidentTypes.map((type) {
+                    return DropdownMenuItem(
+                      value: type.id,
+                      child: Text(type.name),
+                    );
+                  }).toList(),
+                  onChanged: (value) {
+                    setState(() {
+                      _incidentTypeId = value;
+                    });
+                  },
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please select type of violence';
+                    }
+                    return null;
+                  },
+                ),
+                SizedBox(height: 16),
             TextFormField(
-              minLines: 4,
-              maxLines: 6,
+                  maxLines: 5,
               decoration: InputDecoration(
-                hintText: 'Please provide details about what happened...',
+                    labelText: 'Description',
                 border: OutlineInputBorder(),
-                contentPadding: EdgeInsets.all(12),
-              ),
-              onChanged: (v) => _incidentDesc = v,
-            ),
-            SizedBox(height: 18),
-            Text('Date and Time of Incident ( If known)'),
-            SizedBox(height: 6),
-            TextFormField(
-              readOnly: true,
-              controller: TextEditingController(text: _incidentDate),
-              decoration: InputDecoration(
-                hintText: 'DD/MM/YYYY',
-                border: OutlineInputBorder(),
-                suffixIcon: Icon(Icons.calendar_today),
-              ),
+                    hintText: 'Please describe what happened...',
+                  ),
+                  onSaved: (value) {
+                    _description = value;
+                  },
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please provide a description';
+                    }
+                    return null;
+                  },
+                ),
+                SizedBox(height: 16),
+                InkWell(
               onTap: () async {
-                final picked = await showDatePicker(
+                    final date = await showDatePicker(
                   context: context,
-                  initialDate: DateTime.now(),
+                      initialDate: _incidentDate ?? DateTime.now(),
                   firstDate: DateTime(2000),
-                  lastDate: DateTime(2100),
-                );
-                if (picked != null) {
-                  setState(
-                    () => _incidentDate =
-                        "${picked.day.toString().padLeft(2, '0')}/${picked.month.toString().padLeft(2, '0')}/${picked.year}",
-                  );
-                }
-              },
-            ),
-            SizedBox(height: 18),
-            Text('Where did it happen (Location)'),
-            SizedBox(height: 6),
-            TextFormField(
+                      lastDate: DateTime.now(),
+                    );
+                    if (date != null) {
+                      setState(() {
+                        _incidentDate = date;
+                      });
+                    }
+                  },
+                  child: InputDecorator(
               decoration: InputDecoration(
+                      labelText: 'Incident Date',
                 border: OutlineInputBorder(),
-                contentPadding: EdgeInsets.all(12),
-              ),
-              onChanged: (v) => _incidentLocation = v,
-            ),
-            SizedBox(height: 18),
-            Text('Who did it? (stranger, partner, teacher,...)'),
-            SizedBox(height: 6),
-            TextFormField(
-              decoration: InputDecoration(
-                border: OutlineInputBorder(),
-                contentPadding: EdgeInsets.all(12),
-              ),
-              onChanged: (v) => _who = v,
-            ),
-            SizedBox(height: 18),
-            Text('Was this the first time?'),
-            Row(
-              children: [
-                _radio(
-                  'Yes',
-                  _firstTime,
-                  (v) => setState(() => _firstTime = v),
+                    ),
+                    child: Text(
+                      _incidentDate != null
+                          ? '${_incidentDate!.day}/${_incidentDate!.month}/${_incidentDate!.year}'
+                          : 'Select date',
+                    ),
+                  ),
                 ),
-                _radio('No', _firstTime, (v) => setState(() => _firstTime = v)),
-                _radio(
-                  'Not Sure',
-                  _firstTime,
-                  (v) => setState(() => _firstTime = v),
-                ),
-              ],
-            ),
-            SizedBox(height: 18),
-            Text('Do you feel safe right now?'),
-            Row(
-              children: [
-                _radio('Yes', _safe, (v) => setState(() => _safe = v)),
-                _radio('No', _safe, (v) => setState(() => _safe = v)),
-                _radio('Not Sure', _safe, (v) => setState(() => _safe = v)),
-              ],
-            ),
-            SizedBox(height: 18),
-            Text('What Support do you require?'),
-            SizedBox(height: 6),
-            DropdownButtonFormField<String>(
-              value: _supportType,
-              items: supportTypes
-                  .map((v) => DropdownMenuItem(value: v, child: Text(v)))
-                  .toList(),
-              onChanged: (v) => setState(() => _supportType = v),
+                SizedBox(height: 16),
+                DropdownButtonFormField<String>(
+                  value: _incidentSupportId,
               decoration: InputDecoration(
-                hintText: 'Select all that relate...',
+                    labelText: 'Type of Support Needed',
                 border: OutlineInputBorder(),
-                contentPadding: EdgeInsets.symmetric(horizontal: 12),
-              ),
-            ),
-            SizedBox(height: 18),
-            Text('Would you like us to contact you?'),
+                  ),
+                  items: provider.incidentSupports.map((support) {
+                    return DropdownMenuItem(
+                      value: support.id,
+                      child: Text(support.name),
+                    );
+                  }).toList(),
+                  onChanged: (value) {
+                    setState(() {
+                      _incidentSupportId = value;
+                    });
+                  },
+                ),
+                SizedBox(height: 16),
+                Text('Is this the first time this has happened?'),
             Row(
               children: [
-                _radio('Yes', _contact, (v) => setState(() => _contact = v)),
-                _radio('No', _contact, (v) => setState(() => _contact = v)),
-              ],
-            ),
-            SizedBox(height: 12),
+                    Radio(
+                      value: 'yes',
+                      groupValue: _isFirstTime,
+                      onChanged: (value) {
+                        setState(() {
+                          _isFirstTime = value as String?;
+                        });
+                      },
+                    ),
+                    Text('Yes'),
+                    Radio(
+                      value: 'no',
+                      groupValue: _isFirstTime,
+                      onChanged: (value) {
+                        setState(() {
+                          _isFirstTime = value as String?;
+                        });
+                      },
+                    ),
+                    Text('No'),
+                    Radio(
+                      value: 'not_sure',
+                      groupValue: _isFirstTime,
+                      onChanged: (value) {
+                        setState(() {
+                          _isFirstTime = value as String?;
+                        });
+                      },
+                    ),
+                    Text('Not Sure'),
+                  ],
+                ),
+                SizedBox(height: 16),
+                Text('Do you feel safe now?'),
+            Row(
+              children: [
+                    Radio(
+                      value: 'yes',
+                      groupValue: _feelSafeNow,
+                      onChanged: (value) {
+                        setState(() {
+                          _feelSafeNow = value as String?;
+                        });
+                      },
+                    ),
+                    Text('Yes'),
+                    Radio(
+                      value: 'no',
+                      groupValue: _feelSafeNow,
+                      onChanged: (value) {
+                        setState(() {
+                          _feelSafeNow = value as String?;
+                        });
+                      },
+                    ),
+                    Text('No'),
+                    Radio(
+                      value: 'not_sure',
+                      groupValue: _feelSafeNow,
+                      onChanged: (value) {
+                        setState(() {
+                          _feelSafeNow = value as String?;
+                        });
+                      },
+                    ),
+                    Text('Not Sure'),
+                  ],
+                ),
+                SizedBox(height: 16),
             Row(
               children: [
                 Checkbox(
-                  value: _confidential,
-                  onChanged: (v) => setState(() => _confidential = v ?? false),
+                      value: _likeToBeContacted,
+                      onChanged: (value) {
+                        setState(() {
+                          _likeToBeContacted = value ?? false;
+                        });
+                      },
                 ),
                 Expanded(
                   child: Text(
-                    'I understand that this report will be handled confidentially.',
+                        'Would you like to be contacted by our support team?',
                   ),
                 ),
               ],
             ),
             SizedBox(height: 16),
+                OutlinedButton.icon(
+                  onPressed: _pickEvidence,
+                  icon: Icon(Icons.attach_file),
+                  label: Text(_evidenceFilePath != null ? 'Change Evidence' : 'Attach Evidence'),
+                ),
+                if (_evidenceFilePath != null) ...[
+                  SizedBox(height: 8),
+                  Text(
+                    'Evidence file selected',
+                    style: TextStyle(color: Colors.green),
+                  ),
+                ],
+                SizedBox(height: 24),
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.black,
+                      backgroundColor: Color(0xFF7C3AED),
                   foregroundColor: Colors.white,
                   padding: EdgeInsets.symmetric(vertical: 16),
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(6),
-                  ),
-                ),
-                onPressed: () {},
-                child: Text('Submit'),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                    onPressed: _submitReport,
+                    child: Text(
+                      'Submit Report',
+                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                    ),
               ),
             ),
           ],
         ),
       ),
     );
-  }
-
-  Widget _radio(String label, String? group, void Function(String?) onChanged) {
-    return Row(
-      children: [
-        Radio<String>(
-          value: label,
-          groupValue: group,
-          onChanged: onChanged,
-          activeColor: Color(0xFF7C3AED),
-        ),
-        Text(label),
-        SizedBox(width: 8),
-      ],
+      },
     );
   }
 }
