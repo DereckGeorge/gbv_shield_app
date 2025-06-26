@@ -15,6 +15,7 @@ class _SignupScreenState extends State<SignupScreen> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
+  final _formKey = GlobalKey<FormState>();
   bool _loading = false;
   String? _error;
 
@@ -107,30 +108,7 @@ class _SignupScreenState extends State<SignupScreen> {
                 ),
                 onPressed: _loading
                     ? null
-                    : () async {
-                        if (_passwordController.text !=
-                            _confirmPasswordController.text) {
-                          setState(() => _error = 'Passwords do not match');
-                          return;
-                        }
-                        setState(() {
-                          _loading = true;
-                          _error = null;
-                        });
-                        final success = await authProvider.register(
-                          _nameController.text.trim(),
-                          _emailController.text.trim(),
-                          _passwordController.text,
-                        );
-                        if (mounted) {
-                          setState(() => _loading = false);
-                          if (success) {
-                            Navigator.pushReplacementNamed(context, '/home');
-                          } else {
-                            setState(() => _error = authProvider.error ?? 'Registration failed');
-                          }
-                        }
-                      },
+                    : _handleSignup,
                 child: _loading
                     ? SizedBox(
                         height: 18,
@@ -211,5 +189,40 @@ class _SignupScreenState extends State<SignupScreen> {
       ),
       floatingActionButton: const ChatbotFAB(),
     );
+  }
+
+  void _handleSignup() async {
+    if (_formKey.currentState!.validate()) {
+      setState(() => _loading = true);
+      
+      final success = await Provider.of<AuthProvider>(context, listen: false).register(
+        _nameController.text.trim(),
+        _emailController.text.trim(),
+        _passwordController.text,
+      );
+
+      if (mounted) {
+        setState(() => _loading = false);
+        if (success) {
+          // Show success message
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Registration successful! Please login to continue.'),
+              backgroundColor: Colors.green,
+            ),
+          );
+          // Navigate to login screen
+          Navigator.pushReplacementNamed(context, '/login');
+        } else {
+          final error = Provider.of<AuthProvider>(context, listen: false).error;
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(error ?? 'Registration failed'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      }
+    }
   }
 }
