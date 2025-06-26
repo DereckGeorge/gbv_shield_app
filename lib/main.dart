@@ -11,6 +11,7 @@ import 'screens/learn/learn_screen.dart';
 import 'screens/report/report_screen.dart';
 import 'screens/community/community_chat_screen.dart';
 import 'screens/dummy_notepad/dummy_notepad_screen.dart';
+import 'screens/profile/profile_screen.dart';
 // Temporarily remove screen imports and routes until files are created
 
 void main() {
@@ -61,6 +62,7 @@ class MyApp extends StatelessWidget {
         '/report': (context) => const ReportScreen(),
         '/community': (context) => const CommunityChatScreen(),
         '/dummyNotepad': (context) => const QuickExitSettingsScreen(),
+        '/profile': (context) => const ProfileScreen(),
       },
       builder: (context, child) {
         return FutureBuilder<SharedPreferences>(
@@ -87,6 +89,7 @@ class MyApp extends StatelessWidget {
                     '/community': (context) => const CommunityChatScreen(),
                     '/dummyNotepad': (context) =>
                         const QuickExitSettingsScreen(),
+                    '/profile': (context) => const ProfileScreen(),
                   },
                 );
               }

@@ -60,7 +60,21 @@ class BaseScaffold extends StatelessWidget {
                 label: 'Profile',
               ),
             ],
-            onTap: onTab,
+            onTap: (i) {
+              if (onTab != null) {
+                onTab!(i);
+              } else {
+                if (i == 0) {
+                  Navigator.pushReplacementNamed(context, '/home');
+                } else if (i == 1) {
+                  Navigator.pushReplacementNamed(context, '/learn');
+                } else if (i == 2) {
+                  Navigator.pushReplacementNamed(context, '/report');
+                } else if (i == 3) {
+                  Navigator.pushReplacementNamed(context, '/profile');
+                }
+              }
+            },
           ),
         ),
       ),

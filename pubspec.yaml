@@ -104,6 +104,7 @@ flutter:
     - assets/chatbot.png
     - assets/tipoftheday.png
     - assets/zawada.png
+    - assets/avatar.png
     - assets/gbvcommunity.png
 
 flutter_icons:
