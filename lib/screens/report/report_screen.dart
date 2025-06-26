@@ -61,6 +61,18 @@ class _ReportScreenState extends State<ReportScreen> {
   ];
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final args =
+        ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
+    if (args != null && args.containsKey('tab')) {
+      setState(() {
+        _tab = args['tab'] ?? 1;
+      });
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     return BaseScaffold(
       currentIndex: 2,

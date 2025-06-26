@@ -188,7 +188,13 @@ class _HomeScreenState extends State<HomeScreen> {
                             Icons.arrow_forward_ios_outlined,
                             size: 16,
                           ),
-                          onTap: () {},
+                          onTap: () {
+                            Navigator.pushNamed(
+                              context,
+                              '/report',
+                              arguments: {'tab': 0},
+                            );
+                          },
                         ),
                         Divider(height: 1),
                         ListTile(
@@ -200,7 +206,13 @@ class _HomeScreenState extends State<HomeScreen> {
                             Icons.arrow_forward_ios_outlined,
                             size: 16,
                           ),
-                          onTap: () {},
+                          onTap: () {
+                            Navigator.pushNamed(
+                              context,
+                              '/report',
+                              arguments: {'tab': 1},
+                            );
+                          },
                         ),
                         Divider(height: 1),
                         ListTile(
@@ -212,7 +224,9 @@ class _HomeScreenState extends State<HomeScreen> {
                             Icons.arrow_forward_ios_outlined,
                             size: 16,
                           ),
-                          onTap: () {},
+                          onTap: () {
+                            Navigator.pushNamed(context, '/community');
+                          },
                         ),
                         Divider(height: 1),
                         ListTile(
@@ -224,7 +238,9 @@ class _HomeScreenState extends State<HomeScreen> {
                             Icons.arrow_forward_ios_outlined,
                             size: 16,
                           ),
-                          onTap: () {},
+                          onTap: () {
+                            Navigator.pushNamed(context, '/dummyNotepad');
+                          },
                         ),
                       ],
                     ),
