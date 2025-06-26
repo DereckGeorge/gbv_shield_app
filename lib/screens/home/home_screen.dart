@@ -5,6 +5,7 @@ import 'provider/story_provider.dart';
 import 'story_details_screen.dart';
 import '../learn/learn_screen.dart';
 import '../../widgets/base_scaffold.dart';
+import '../../providers/tip_provider.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -18,12 +19,154 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     super.initState();
     Provider.of<StoryProvider>(context, listen: false).loadStories();
+    Provider.of<TipProvider>(context, listen: false).loadTipOfTheDay();
   }
 
   void _openStoryDetails(BuildContext context, story) {
     Navigator.push(
       context,
       MaterialPageRoute(builder: (_) => StoryDetailsScreen(story: story)),
+    );
+  }
+
+  Widget _buildTipOfTheDay() {
+    return Consumer<TipProvider>(
+      builder: (context, tipProvider, child) {
+        if (tipProvider.isLoading) {
+          return Container(
+            height: 160,
+            decoration: BoxDecoration(
+              color: Colors.grey[100],
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: Center(
+              child: CircularProgressIndicator(),
+            ),
+          );
+        }
+
+        if (tipProvider.error != null) {
+          return Container(
+            height: 160,
+            decoration: BoxDecoration(
+              color: Colors.grey[100],
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(tipProvider.error!),
+                  if (tipProvider.error!.contains('Please log in'))
+                    TextButton(
+                      onPressed: () {
+                        Navigator.pushReplacementNamed(context, '/login');
+                      },
+                      child: Text(
+                        'Log in',
+                        style: TextStyle(
+                          color: Color(0xFF7C3AED),
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+            ),
+          );
+        }
+
+        final tip = tipProvider.tipOfTheDay;
+        if (tip == null) {
+          return Container(
+            height: 160,
+            decoration: BoxDecoration(
+              color: Colors.grey[100],
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: Center(
+              child: Text('No tip available'),
+            ),
+          );
+        }
+
+        return Container(
+          height: 160,
+          decoration: BoxDecoration(
+            color: Colors.grey[100],
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: Row(
+            children: [
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    vertical: 24.0,
+                    horizontal: 16,
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        'Tip of the Day',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 18,
+                        ),
+                      ),
+                      SizedBox(height: 8),
+                      Text(
+                        tip.content,
+                        style: TextStyle(fontSize: 15),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      SizedBox(height: 12),
+                      GestureDetector(
+                        onTap: () async {
+                          await tipProvider.toggleLike();
+                          // Clear the error after a short delay
+                          if (tipProvider.error != null) {
+                            Future.delayed(Duration(seconds: 3), () {
+                              if (mounted) {
+                                tipProvider.loadTipOfTheDay();
+                              }
+                            });
+                          }
+                        },
+                        child: Row(
+                          children: [
+                            Icon(
+                              tip.isLiked ? Icons.favorite : Icons.favorite_border,
+                              color: Colors.purple,
+                              size: 20,
+                            ),
+                            SizedBox(width: 4),
+                            Text(
+                              '${tip.likesCount}',
+                              style: TextStyle(color: Colors.black54),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              ClipRRect(
+                borderRadius: BorderRadius.circular(16),
+                child: Image.asset(
+                  'assets/tipoftheday.png',
+                  width: 120,
+                  height: 160,
+                  fit: BoxFit.cover,
+                ),
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 
@@ -88,67 +231,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
                   ),
                   SizedBox(height: 16),
-                  Container(
-                    height: 160,
-                    decoration: BoxDecoration(
-                      color: Colors.grey[100],
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(
-                              vertical: 24.0,
-                              horizontal: 16,
-                            ),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Text(
-                                  'Tip of the Day',
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 18,
-                                  ),
-                                ),
-                                SizedBox(height: 8),
-                                Text(
-                                  'Consent is ongoing — you can say no at any time',
-                                  style: TextStyle(fontSize: 15),
-                                ),
-                                SizedBox(height: 12),
-                                Row(
-                                  children: [
-                                    Icon(
-                                      Icons.favorite_border,
-                                      color: Colors.purple,
-                                      size: 20,
-                                    ),
-                                    SizedBox(width: 4),
-                                    Text(
-                                      '128',
-                                      style: TextStyle(color: Colors.black54),
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                        ClipRRect(
-                          borderRadius: BorderRadius.circular(16),
-                          child: Image.asset(
-                            'assets/tipoftheday.png',
-                            width: 120,
-                            height: 160,
-                            fit: BoxFit.cover,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
+                  _buildTipOfTheDay(),
                   SizedBox(height: 20),
                   Container(
                     decoration: BoxDecoration(
