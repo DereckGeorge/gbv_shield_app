@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'dart:async';
+import 'package:provider/provider.dart';
+import '../auth/provider/auth_provider.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({Key? key}) : super(key: key);
@@ -12,16 +13,44 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
-    Timer(const Duration(seconds: 2), () {
+    _checkAuthAndRedirect();
+  }
+
+  Future<void> _checkAuthAndRedirect() async {
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    
+    // Wait for auth provider to initialize
+    await Future.delayed(const Duration(seconds: 2));
+    
+    if (!mounted) return;
+
+    // Check if user is logged in
+    if (authProvider.isLoggedIn) {
+      Navigator.pushReplacementNamed(context, '/home');
+    } else {
       Navigator.pushReplacementNamed(context, '/login');
-    });
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
-      body: Center(child: Image.asset('assets/gbvshield.png', width: 180)),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Image.asset(
+              'assets/gbvshield.png',
+              width: 120,
+              height: 120,
+            ),
+            const SizedBox(height: 24),
+            const CircularProgressIndicator(
+              color: Color(0xFF7C3AED),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
