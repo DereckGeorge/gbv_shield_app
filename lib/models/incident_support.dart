@@ -13,9 +13,9 @@ class IncidentSupport {
 
   factory IncidentSupport.fromJson(Map<String, dynamic> json) {
     return IncidentSupport(
-      id: json['id'],
-      name: json['name'],
-      description: json['description'],
+      id: json['id']?.toString() ?? '',
+      name: json['name']?.toString() ?? '',
+      description: json['description']?.toString(),
     );
   }
 

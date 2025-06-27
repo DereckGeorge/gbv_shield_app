@@ -13,13 +13,17 @@ class IncidentService {
   IncidentService(this._apiService);
 
   Future<List<IncidentType>> getIncidentTypes() async {
-    final response = await _apiService.get('/api/incident-types', requiresAuth: true);
+    final response = await _apiService.get('/api/incident-types', requiresAuth: false);
     return (response as List).map((json) => IncidentType.fromJson(json)).toList();
   }
 
   Future<List<IncidentSupport>> getIncidentSupports() async {
-    final response = await _apiService.get('/api/incident-supports', requiresAuth: true);
-    return (response as List).map((json) => IncidentSupport.fromJson(json)).toList();
+    final response = await _apiService.get('/api/incident-supports', requiresAuth: false);
+    if (response == null) return [];
+    
+    // Handle both array response and data wrapper response
+    final List supportsList = response is List ? response : (response['data'] ?? []);
+    return supportsList.map((json) => IncidentSupport.fromJson(json)).toList();
   }
 
   Future<List<Incident>> getUserIncidents({
