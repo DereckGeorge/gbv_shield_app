@@ -157,7 +157,7 @@ class _CommunityChatScreenState extends State<CommunityChatScreen> {
     try {
       final response = await _apiService.get(
         '/api/community/messages',
-        requiresAuth: true,
+        requiresAuth: false,
       );
 
       if (response != null) {
@@ -198,8 +198,31 @@ class _CommunityChatScreenState extends State<CommunityChatScreen> {
       }
     } catch (e) {
       setState(() => _isLoading = false);
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error loading messages: $e')),
+        SnackBar(
+          content: Row(
+            children: [
+              const Expanded(
+                child: Text('Error loading messages. Please try again.'),
+              ),
+              if (e.toString().contains('Authentication token not found'))
+                TextButton(
+                  onPressed: () {
+                    Navigator.pushReplacementNamed(context, '/login');
+                  },
+                  child: const Text(
+                    'Log in',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+            ],
+          ),
+          backgroundColor: Color(0xFF7C3AED),
+        ),
       );
     }
   }
@@ -246,10 +269,66 @@ class _CommunityChatScreenState extends State<CommunityChatScreen> {
             _scrollToBottom();
           });
         }
+      } else {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    _replyToMessage != null
+                        ? 'Please log in to reply to messages'
+                        : 'Please log in to send messages'
+                  ),
+                ),
+                TextButton(
+                  onPressed: () {
+                    Navigator.pushReplacementNamed(context, '/login');
+                  },
+                  child: const Text(
+                    'Log in',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            backgroundColor: Color(0xFF7C3AED),
+          ),
+        );
       }
     } catch (e) {
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error sending message: $e')),
+        SnackBar(
+          content: Row(
+            children: [
+              Expanded(
+                child: Text(
+                  _replyToMessage != null
+                      ? 'Please log in to reply to messages'
+                      : 'Please log in to send messages'
+                ),
+              ),
+              TextButton(
+                onPressed: () {
+                  Navigator.pushReplacementNamed(context, '/login');
+                },
+                child: const Text(
+                  'Log in',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          backgroundColor: Color(0xFF7C3AED),
+        ),
       );
     }
   }
@@ -268,10 +347,58 @@ class _CommunityChatScreenState extends State<CommunityChatScreen> {
           message.isLikedByUser = response['is_liked_by_user'];
           message.likesCount = response['likes_count'];
         });
+      } else {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Row(
+              children: [
+                const Expanded(
+                  child: Text('Please log in to like messages'),
+                ),
+                TextButton(
+                  onPressed: () {
+                    Navigator.pushReplacementNamed(context, '/login');
+                  },
+                  child: const Text(
+                    'Log in',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            backgroundColor: Color(0xFF7C3AED),
+          ),
+        );
       }
     } catch (e) {
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error toggling like: $e')),
+        SnackBar(
+          content: Row(
+            children: [
+              const Expanded(
+                child: Text('Please log in to like messages'),
+              ),
+              TextButton(
+                onPressed: () {
+                  Navigator.pushReplacementNamed(context, '/login');
+                },
+                child: const Text(
+                  'Log in',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          backgroundColor: Color(0xFF7C3AED),
+        ),
       );
     }
   }
@@ -296,10 +423,58 @@ class _CommunityChatScreenState extends State<CommunityChatScreen> {
             }
           }
         });
+      } else {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Row(
+              children: [
+                const Expanded(
+                  child: Text('Please log in to like replies'),
+                ),
+                TextButton(
+                  onPressed: () {
+                    Navigator.pushReplacementNamed(context, '/login');
+                  },
+                  child: const Text(
+                    'Log in',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            backgroundColor: Color(0xFF7C3AED),
+          ),
+        );
       }
     } catch (e) {
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error toggling reply like: $e')),
+        SnackBar(
+          content: Row(
+                          children: [
+              const Expanded(
+                child: Text('Please log in to like replies'),
+              ),
+              TextButton(
+                onPressed: () {
+                  Navigator.pushReplacementNamed(context, '/login');
+                },
+                child: const Text(
+                  'Log in',
+                  style: TextStyle(
+                                color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          backgroundColor: Color(0xFF7C3AED),
+        ),
       );
     }
   }
@@ -440,8 +615,8 @@ class _CommunityChatScreenState extends State<CommunityChatScreen> {
                     ),
                   ],
                 ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Container(
@@ -477,7 +652,7 @@ class _CommunityChatScreenState extends State<CommunityChatScreen> {
                           ),
                           Text(
                             parentMessage.content,
-                        style: TextStyle(
+                            style: TextStyle(
                               fontSize: 11,
                               color: Colors.grey[700],
                             ),
@@ -505,8 +680,8 @@ class _CommunityChatScreenState extends State<CommunityChatScreen> {
                         const SizedBox(width: 4),
                         GestureDetector(
                           onTap: () => _toggleReplyLike(reply.id),
-                        child: Row(
-                          children: [
+                          child: Row(
+                            children: [
                               Icon(
                                 reply.isLikedByUser ? Icons.favorite : Icons.favorite_border,
                                 size: 13,
@@ -519,10 +694,10 @@ class _CommunityChatScreenState extends State<CommunityChatScreen> {
                                   fontSize: 11,
                                   color: Colors.grey[600],
                                 ),
-                            ),
-                          ],
+                              ),
+                            ],
+                          ),
                         ),
-                      ),
                       ],
                     ),
                   ],
@@ -632,11 +807,11 @@ class _CommunityChatScreenState extends State<CommunityChatScreen> {
                                     color: Colors.grey[600],
                                   ),
                                 ),
+                              ],
+                            ),
+                          ),
                         ],
                       ),
-                    ),
-                  ],
-                ),
                     ],
                   ),
                 ),
@@ -715,21 +890,21 @@ class _CommunityChatScreenState extends State<CommunityChatScreen> {
             Container(
               padding: const EdgeInsets.all(8),
               color: Colors.grey[100],
-                  child: Row(
-                    children: [
+              child: Row(
+                children: [
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                      Text(
+                        Text(
                           'Replying to ${_replyToMessage!.userName}',
                           style: const TextStyle(
                             color: Color(0xFF7C3AED),
-                            fontWeight: FontWeight.bold,
-                          ),
+                        fontWeight: FontWeight.bold,
+                      ),
                         ),
-                      Text(
+                        Text(
                           _replyToMessage!.content,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
@@ -737,10 +912,10 @@ class _CommunityChatScreenState extends State<CommunityChatScreen> {
                             color: Colors.grey[600],
                             fontSize: 12,
                           ),
-                      ),
-                    ],
+                        ),
+                      ],
+                    ),
                   ),
-                ),
                   IconButton(
                     icon: const Icon(Icons.close),
                     onPressed: () => setState(() => _replyToMessage = null),
@@ -791,9 +966,9 @@ class _CommunityChatScreenState extends State<CommunityChatScreen> {
                     child: IconButton(
                       icon: const Icon(Icons.send, color: Colors.white),
                       onPressed: _sendMessage,
+                    ),
                   ),
-                ),
-              ],
+                ],
               ),
             ),
           ),

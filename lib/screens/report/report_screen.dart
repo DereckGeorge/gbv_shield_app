@@ -33,12 +33,13 @@ class _ReportScreenState extends State<ReportScreen> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
       final incidentProvider = context.read<IncidentProvider>();
       final emergencyProvider = context.read<EmergencyContactProvider>();
       
-      incidentProvider.loadIncidentTypes();
-      incidentProvider.loadIncidentSupports();
+      // Load both incident types and supports
+      await incidentProvider.loadIncidentTypes();
+      await incidentProvider.loadIncidentSupports();
       emergencyProvider.loadNearbyContacts();
     });
   }
@@ -71,7 +72,7 @@ class _ReportScreenState extends State<ReportScreen> {
 
     if (_incidentDate == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Please select incident date')),
+        const SnackBar(content: Text('Please select incident date')),
       );
       return;
     }
@@ -91,14 +92,44 @@ class _ReportScreenState extends State<ReportScreen> {
       await provider.reportIncident(incident, _evidenceFilePath);
 
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Report submitted successfully')),
+        const SnackBar(content: Text('Report submitted successfully')),
       );
 
       Navigator.pushReplacementNamed(context, '/profile');
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to submit report: $e')),
-      );
+      if (!mounted) return;
+      
+      if (e.toString().contains('Authentication token not found') || 
+          e.toString().contains('Unauthenticated')) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Row(
+              children: [
+                const Expanded(
+                  child: Text('Please log in to submit a report'),
+                ),
+                TextButton(
+                  onPressed: () {
+                    Navigator.pushReplacementNamed(context, '/login');
+                  },
+                  child: const Text(
+                    'Log in',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            backgroundColor: const Color(0xFF7C3AED),
+          ),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to submit report: $e')),
+        );
+      }
     }
   }
 
@@ -300,10 +331,32 @@ class _ReportScreenState extends State<ReportScreen> {
     return Consumer<IncidentProvider>(
       builder: (context, provider, child) {
         if (provider.isLoading) {
-          return Center(child: CircularProgressIndicator());
+          return const Center(child: CircularProgressIndicator());
         }
 
-    return SingleChildScrollView(
+        if (provider.error != null) {
+          return Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(provider.error!),
+                ElevatedButton(
+                  onPressed: () async {
+                    await provider.loadIncidentTypes();
+                    await provider.loadIncidentSupports();
+                  },
+                  child: const Text('Retry'),
+                ),
+              ],
+            ),
+          );
+        }
+
+        // Add debug print to check the data
+        print('Incident Types: ${provider.incidentTypes.length}');
+        print('Incident Supports: ${provider.incidentSupports.length}');
+
+        return SingleChildScrollView(
       padding: const EdgeInsets.all(20),
       child: Form(
         key: _formKey,

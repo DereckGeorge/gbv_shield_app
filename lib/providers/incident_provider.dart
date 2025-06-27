@@ -77,9 +77,13 @@ class IncidentProvider with ChangeNotifier {
       _error = null;
       notifyListeners();
 
+      print('Fetching incident supports...'); // Debug print
       _incidentSupports = await _service.getIncidentSupports();
+      print('Received ${_incidentSupports.length} incident supports'); // Debug print
+      
       notifyListeners();
     } catch (e) {
+      print('Error loading incident supports: $e'); // Debug print
       _error = 'Failed to load incident supports: $e';
       notifyListeners();
     } finally {
