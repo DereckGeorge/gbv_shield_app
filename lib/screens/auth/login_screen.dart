@@ -171,7 +171,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             strokeWidth: 2,
                           ),
                         )
-                      : Text('Log in', style: TextStyle(fontSize: 16)),
+                      : Text('Log in', style: TextStyle(fontSize: 16, color: Colors.white)),
                 ),
                 const SizedBox(height: 12),
                 ElevatedButton(
