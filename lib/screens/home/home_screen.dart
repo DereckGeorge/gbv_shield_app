@@ -577,13 +577,16 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                   ),
                   Spacer(),
-                  Icon(
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.pushReplacementNamed(context, '/profile');
+                    },
+                    child: Icon(
                     Icons.account_circle_outlined,
                     color: Colors.black,
                     size: 28,
+                    ),
                   ),
-                  SizedBox(width: 8),
-                  Icon(Icons.more_horiz, color: Colors.black, size: 28),
                 ],
               ),
             ),
