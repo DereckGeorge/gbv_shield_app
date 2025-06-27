@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../../widgets/base_scaffold.dart';
 import 'my_reports_screen.dart';
 import '../auth/provider/auth_provider.dart';
+import '../home/saved_stories_screen.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({Key? key}) : super(key: key);
@@ -205,7 +206,14 @@ class ProfileScreen extends StatelessWidget {
                   ListTile(
                     title: Text('Saved Resources'),
                     trailing: Icon(Icons.arrow_forward_ios_rounded, size: 16),
-                    onTap: () {}, // TODO: Navigate
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const SavedStoriesScreen(),
+                        ),
+                      );
+                    },
                   ),
                 ],
               ),
@@ -238,6 +246,31 @@ class ProfileScreen extends StatelessWidget {
                     title: Text('Appearance'),
                     trailing: Icon(Icons.arrow_forward_ios_rounded, size: 16),
                     onTap: () {}, // TODO: Navigate
+                  ),
+                  Divider(height: 1),
+                  ListTile(
+                    title: Text(
+                      'Logout',
+                      style: TextStyle(color: Colors.red),
+                    ),
+                    trailing: Icon(Icons.logout, color: Colors.red, size: 20),
+                    onTap: () async {
+                      try {
+                        await Provider.of<AuthProvider>(context, listen: false).logout();
+                        // Navigate to login screen and remove all previous routes
+                        Navigator.of(context).pushNamedAndRemoveUntil(
+                          '/login',
+                          (Route<dynamic> route) => false,
+                        );
+                      } catch (e) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text('Failed to logout. Please try again.'),
+                            backgroundColor: Colors.red,
+                          ),
+                        );
+                      }
+                    },
                   ),
                 ],
               ),

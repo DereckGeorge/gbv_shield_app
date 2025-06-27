@@ -55,7 +55,7 @@ class AuthService {
     }
   }
 
-  Future<Map<String, dynamic>> register(String name, String email, String password) async {
+  Future<Map<String, dynamic>> register(String name, String email, String password, String passwordConfirmation) async {
     try {
       final response = await http.post(
         Uri.parse('$baseUrl/api/register'),
@@ -64,6 +64,7 @@ class AuthService {
           'name': name,
           'email': email,
           'password': password,
+          'password_confirmation': passwordConfirmation,
         }),
       );
 
@@ -91,7 +92,7 @@ class AuthService {
         print('Response body: ${response.body}');
         return {
           'success': false,
-          'message': data['message'] ?? 'Registration failed',
+          'message': response.body,
         };
       }
     } catch (e) {

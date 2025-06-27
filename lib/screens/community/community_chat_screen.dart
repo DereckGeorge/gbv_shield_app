@@ -440,8 +440,8 @@ class _CommunityChatScreenState extends State<CommunityChatScreen> {
                     ),
                   ],
                 ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Container(
@@ -477,7 +477,7 @@ class _CommunityChatScreenState extends State<CommunityChatScreen> {
                           ),
                           Text(
                             parentMessage.content,
-                            style: TextStyle(
+                        style: TextStyle(
                               fontSize: 11,
                               color: Colors.grey[700],
                             ),
@@ -505,8 +505,8 @@ class _CommunityChatScreenState extends State<CommunityChatScreen> {
                         const SizedBox(width: 4),
                         GestureDetector(
                           onTap: () => _toggleReplyLike(reply.id),
-                          child: Row(
-                            children: [
+                        child: Row(
+                          children: [
                               Icon(
                                 reply.isLikedByUser ? Icons.favorite : Icons.favorite_border,
                                 size: 13,
@@ -519,10 +519,10 @@ class _CommunityChatScreenState extends State<CommunityChatScreen> {
                                   fontSize: 11,
                                   color: Colors.grey[600],
                                 ),
-                              ),
-                            ],
-                          ),
+                            ),
+                          ],
                         ),
+                      ),
                       ],
                     ),
                   ],
@@ -632,11 +632,11 @@ class _CommunityChatScreenState extends State<CommunityChatScreen> {
                                     color: Colors.grey[600],
                                   ),
                                 ),
-                              ],
-                            ),
-                          ),
                         ],
                       ),
+                    ),
+                  ],
+                ),
                     ],
                   ),
                 ),

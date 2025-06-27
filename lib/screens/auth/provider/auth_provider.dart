@@ -104,8 +104,8 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
-  Future<bool> register(String name, String email, String password) async {
-    if (name.isEmpty || email.isEmpty || password.isEmpty) {
+  Future<bool> register(String name, String email, String password, String passwordConfirmation) async {
+    if (name.isEmpty || email.isEmpty || password.isEmpty || passwordConfirmation.isEmpty) {
       _setError('All fields are required');
       return false;
     }
@@ -115,7 +115,7 @@ class AuthProvider extends ChangeNotifier {
 
     try {
       print('Attempting registration with email: $email');
-      final result = await _authService.register(name, email, password);
+      final result = await _authService.register(name, email, password, passwordConfirmation);
       print('Registration result: $result');
       
       if (result['success']) {
