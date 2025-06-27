@@ -174,22 +174,6 @@ class _LoginScreenState extends State<LoginScreen> {
                       : Text('Log in', style: TextStyle(fontSize: 16)),
                 ),
                 const SizedBox(height: 12),
-                OutlinedButton.icon(
-                  style: OutlinedButton.styleFrom(
-                    padding: EdgeInsets.symmetric(vertical: 14),
-                    side: BorderSide(color: Colors.black12),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(6),
-                    ),
-                  ),
-                  icon: Icon(Icons.g_mobiledata, color: Colors.black, size: 28),
-                  label: Text(
-                    'Log in with Google',
-                    style: TextStyle(color: Colors.black),
-                  ),
-                  onPressed: () {}, // Placeholder
-                ),
-                const SizedBox(height: 12),
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.black,
