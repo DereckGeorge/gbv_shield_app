@@ -4,6 +4,7 @@ import '../../widgets/base_scaffold.dart';
 import 'my_reports_screen.dart';
 import '../auth/provider/auth_provider.dart';
 import '../home/saved_stories_screen.dart';
+import '../settings/general_settings_screen.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({Key? key}) : super(key: key);
@@ -153,12 +154,6 @@ class ProfileScreen extends StatelessWidget {
               child: Column(
                 children: [
                   ListTile(
-                    title: Text('Privacy Settings'),
-                    trailing: Icon(Icons.arrow_forward_ios_rounded, size: 16),
-                    onTap: () {}, // TODO: Navigate
-                  ),
-                  Divider(height: 1),
-                  ListTile(
                     title: Text('Emergency Contacts'),
                     trailing: Icon(Icons.arrow_forward_ios_rounded, size: 16),
                     onTap: () {
@@ -173,7 +168,9 @@ class ProfileScreen extends StatelessWidget {
                   ListTile(
                     title: Text('Quick Exit Settings'),
                     trailing: Icon(Icons.arrow_forward_ios_rounded, size: 16),
-                    onTap: () {}, // TODO: Navigate
+                    onTap: () {
+                      Navigator.pushNamed(context, '/dummyNotepad');
+                    },
                   ),
                 ],
               ),
@@ -231,22 +228,18 @@ class ProfileScreen extends StatelessWidget {
               child: Column(
                 children: [
                   ListTile(
-                    title: Text('Notifications'),
+                    title: Text('General Settings'),
                     trailing: Icon(Icons.arrow_forward_ios_rounded, size: 16),
-                    onTap: () {}, // TODO: Navigate
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const GeneralSettingsScreen(),
+                        ),
+                      );
+                    },
                   ),
-                  Divider(height: 1),
-                  ListTile(
-                    title: Text('Language'),
-                    trailing: Icon(Icons.arrow_forward_ios_rounded, size: 16),
-                    onTap: () {}, // TODO: Navigate
-                  ),
-                  Divider(height: 1),
-                  ListTile(
-                    title: Text('Appearance'),
-                    trailing: Icon(Icons.arrow_forward_ios_rounded, size: 16),
-                    onTap: () {}, // TODO: Navigate
-                  ),
+                
                   Divider(height: 1),
                   ListTile(
                     title: Text(
@@ -257,7 +250,6 @@ class ProfileScreen extends StatelessWidget {
                     onTap: () async {
                       try {
                         await Provider.of<AuthProvider>(context, listen: false).logout();
-                        // Navigate to login screen and remove all previous routes
                         Navigator.of(context).pushNamedAndRemoveUntil(
                           '/login',
                           (Route<dynamic> route) => false,
