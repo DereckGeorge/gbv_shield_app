@@ -17,14 +17,20 @@ class ProfileScreen extends StatelessWidget {
     return BaseScaffold(
       currentIndex: 3,
       onTab: (i) {
-        if (i == 0) {
-          Navigator.pushReplacementNamed(context, '/home');
-        } else if (i == 1) {
-          Navigator.pushReplacementNamed(context, '/learn');
-        } else if (i == 2) {
-          Navigator.pushReplacementNamed(context, '/report');
-        } else if (i == 3) {
-          // Already on profile
+        if (!Navigator.of(context).userGestureInProgress) {
+          try {
+            if (i == 0) {
+              Navigator.pushReplacementNamed(context, '/home');
+            } else if (i == 1) {
+              Navigator.pushReplacementNamed(context, '/learn');
+            } else if (i == 2) {
+              Navigator.pushReplacementNamed(context, '/report');
+            } else if (i == 3) {
+              // Already on profile
+            }
+          } catch (e) {
+            print('Navigation error: $e');
+          }
         }
       },
       child: SafeArea(
@@ -160,7 +166,9 @@ class ProfileScreen extends StatelessWidget {
                       Navigator.pushNamed(
                         context,
                         '/report',
-                        arguments: {'tab': 0}, // 0 is the emergency contacts tab
+                        arguments: {
+                          'tab': 0,
+                        }, // 0 is the emergency contacts tab
                       );
                     },
                   ),
@@ -239,17 +247,17 @@ class ProfileScreen extends StatelessWidget {
                       );
                     },
                   ),
-                
+
                   Divider(height: 1),
                   ListTile(
-                    title: Text(
-                      'Logout',
-                      style: TextStyle(color: Colors.red),
-                    ),
+                    title: Text('Logout', style: TextStyle(color: Colors.red)),
                     trailing: Icon(Icons.logout, color: Colors.red, size: 20),
                     onTap: () async {
                       try {
-                        await Provider.of<AuthProvider>(context, listen: false).logout();
+                        await Provider.of<AuthProvider>(
+                          context,
+                          listen: false,
+                        ).logout();
                         Navigator.of(context).pushNamedAndRemoveUntil(
                           '/login',
                           (Route<dynamic> route) => false,
@@ -257,7 +265,9 @@ class ProfileScreen extends StatelessWidget {
                       } catch (e) {
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
-                            content: Text('Failed to logout. Please try again.'),
+                            content: Text(
+                              'Failed to logout. Please try again.',
+                            ),
                             backgroundColor: Colors.red,
                           ),
                         );

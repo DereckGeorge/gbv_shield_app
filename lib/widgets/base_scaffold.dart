@@ -64,14 +64,22 @@ class BaseScaffold extends StatelessWidget {
               if (onTab != null) {
                 onTab!(i);
               } else {
-                if (i == 0) {
-                  Navigator.pushReplacementNamed(context, '/home');
-                } else if (i == 1) {
-                  Navigator.pushReplacementNamed(context, '/learn');
-                } else if (i == 2) {
-                  Navigator.pushReplacementNamed(context, '/report');
-                } else if (i == 3) {
-                  Navigator.pushReplacementNamed(context, '/profile');
+                // Prevent navigation conflicts
+                if (!Navigator.of(context).userGestureInProgress) {
+                  try {
+                    if (i == 0) {
+                      Navigator.pushReplacementNamed(context, '/home');
+                    } else if (i == 1) {
+                      Navigator.pushReplacementNamed(context, '/learn');
+                    } else if (i == 2) {
+                      Navigator.pushReplacementNamed(context, '/report');
+                    } else if (i == 3) {
+                      Navigator.pushReplacementNamed(context, '/profile');
+                    }
+                  } catch (e) {
+                    // Handle navigation errors silently
+                    print('Navigation error: $e');
+                  }
                 }
               }
             },

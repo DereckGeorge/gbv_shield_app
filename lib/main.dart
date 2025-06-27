@@ -34,17 +34,14 @@ Future<void> main() async {
   runApp(
     MultiProvider(
       providers: [
-        ChangeNotifierProvider(
-          create: (_) => AuthProvider(),
-        ),
+        ChangeNotifierProvider(create: (_) => AuthProvider()),
         ChangeNotifierProxyProvider<AuthProvider, IncidentProvider>(
           create: (context) => IncidentProvider(context.read<AuthProvider>()),
           update: (context, auth, previous) => IncidentProvider(auth),
         ),
         ChangeNotifierProvider(
-          create: (_) => EmergencyContactProvider(
-            EmergencyContactService(apiService),
-          ),
+          create: (_) =>
+              EmergencyContactProvider(EmergencyContactService(apiService)),
         ),
       ],
       child: const MyApp(),
@@ -59,14 +56,10 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
+        ChangeNotifierProvider(create: (_) => AuthProvider(), lazy: false),
         ChangeNotifierProvider(
-          create: (_) => AuthProvider(),
-          lazy: false,
-        ),
-        ChangeNotifierProvider(
-          create: (context) => LearnProvider(
-            Provider.of<AuthProvider>(context, listen: false),
-          ),
+          create: (context) =>
+              LearnProvider(Provider.of<AuthProvider>(context, listen: false)),
         ),
         ChangeNotifierProvider(
           create: (context) => IncidentProvider(
@@ -78,10 +71,7 @@ class MyApp extends StatelessWidget {
             Provider.of<AuthProvider>(context, listen: false),
           ),
         ),
-        ChangeNotifierProvider(
-          create: (_) => StoryProvider(),
-          lazy: false,
-        ),
+        ChangeNotifierProvider(create: (_) => StoryProvider(), lazy: false),
         ChangeNotifierProxyProvider<AuthProvider, TipProvider>(
           create: (context) => TipProvider(context.read<AuthProvider>()),
           update: (context, auth, previous) => TipProvider(auth),
@@ -92,6 +82,7 @@ class MyApp extends StatelessWidget {
         builder: (context, authProvider, _) {
           return MaterialApp(
             title: 'GBV Shield',
+            debugShowCheckedModeBanner: false,
             theme: ThemeData(
               primarySwatch: Colors.purple,
               primaryColor: const Color(0xFF7C3AED),
