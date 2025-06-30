@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
+import '../../models/learn.dart';
 import '../../providers/learn_provider.dart';
 import '../../widgets/base_scaffold.dart';
-import '../../models/learn.dart';
-import '../../models/learn_category.dart';
+import '../home/home_screen.dart';
 import 'video_player_screen.dart';
 import 'youtube_player_screen.dart';
 import 'webview_screen.dart';
@@ -18,113 +19,152 @@ class LearnScreen extends StatefulWidget {
 }
 
 class _LearnScreenState extends State<LearnScreen> {
-  final _searchController = TextEditingController();
-  final _scrollController = ScrollController();
+  String _searchQuery = '';
 
   @override
   void initState() {
     super.initState();
-    _loadInitialData();
-    _scrollController.addListener(_onScroll);
-  }
-
-  @override
-  void dispose() {
-    _searchController.dispose();
-    _scrollController.removeListener(_onScroll);
-    _scrollController.dispose();
-    super.dispose();
-  }
-
-  void _loadInitialData() {
-    final learnProvider = Provider.of<LearnProvider>(context, listen: false);
-    learnProvider.loadCategories();
-    learnProvider.loadLearns(refresh: true);
-  }
-
-  void _onScroll() {
-    if (_scrollController.position.pixels >= _scrollController.position.maxScrollExtent - 200) {
+    // Fetch learns when the screen is first initialized
+    WidgetsBinding.instance.addPostFrameCallback((_) {
       Provider.of<LearnProvider>(context, listen: false).loadLearns();
-    }
+    });
   }
 
-  Widget _buildMediaPreview(Learn learn) {
-    if (learn.youtubeUrl != null) {
-      final videoId = YoutubePlayer.convertUrlToId(learn.youtubeUrl!);
-      if (videoId != null) {
-        return Stack(
-          children: [
-            Image.network(
-              'https://img.youtube.com/vi/$videoId/maxresdefault.jpg',
-              height: 160,
-              width: double.infinity,
-              fit: BoxFit.cover,
-              errorBuilder: (context, error, stackTrace) => Image.network(
-                'https://img.youtube.com/vi/$videoId/hqdefault.jpg',
-                height: 160,
-                width: double.infinity,
-                fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) => Container(
-                  height: 160,
-                  color: Colors.grey[300],
-                  child: Icon(Icons.play_circle_outline, size: 50),
-                ),
-              ),
+  Widget _buildLearnItem(Learn learn) {
+    String? videoId;
+    if (learn.youtubeUrl != null && learn.youtubeUrl!.isNotEmpty) {
+      videoId = YoutubePlayer.convertUrlToId(learn.youtubeUrl!);
+    }
+
+    return GestureDetector(
+      onTap: () {
+        if (videoId != null) {
+          // If it's a video, open the YouTube player directly
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) =>
+                  YoutubePlayerScreen(videoId: videoId!, title: learn.title),
             ),
-            Positioned.fill(
-              child: Container(
-                color: Colors.black26,
-                child: Center(
-                  child: Icon(
+          );
+        } else if (learn.url != null && learn.url!.isNotEmpty) {
+          // If it's an article with a URL, open the WebView screen
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) =>
+                  WebViewScreen(url: learn.url!, title: learn.title),
+            ),
+          );
+        } else {
+          // As a fallback for articles with no URL, open the detail screen
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => LearnDetailScreen(learn: learn)),
+          );
+        }
+      },
+      child: Card(
+        elevation: 4,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Stack(
+              alignment: Alignment.center,
+              children: [
+                ClipRRect(
+                  borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+                  child: videoId != null
+                      ? Image.network(
+                          'https://img.youtube.com/vi/$videoId/hqdefault.jpg',
+                          height: 180,
+                          width: double.infinity,
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) =>
+                              _buildPlaceholderImage(),
+                        )
+                      : learn.imagePath != null
+                      ? Image.network(
+                          learn.fullImageUrl,
+                          height: 180,
+                          width: double.infinity,
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) =>
+                              _buildPlaceholderImage(),
+                        )
+                      : _buildPlaceholderImage(),
+                ),
+                if (videoId != null)
+                  Icon(
                     Icons.play_circle_outline,
                     color: Colors.white,
-                    size: 50,
+                    size: 60,
                   ),
-                ),
+              ],
+            ),
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  if (learn.category != null)
+                    Text(
+                      learn.category!.name.toUpperCase(),
+                      style: TextStyle(
+                        color: Color(0xFF7C3AED),
+                        fontWeight: FontWeight.bold,
+                        fontSize: 12,
+                      ),
+                    ),
+                  SizedBox(height: 8),
+                  Text(
+                    learn.title,
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  SizedBox(height: 8),
+                  Text(
+                    learn.content,
+                    style: TextStyle(fontSize: 14, color: Colors.black54),
+                    maxLines: 3,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  SizedBox(height: 12),
+                  Row(
+                    children: [
+                      Icon(Icons.favorite_border, size: 18, color: Colors.grey),
+                      SizedBox(width: 4),
+                      Text(
+                        '${learn.likesCount} likes',
+                        style: TextStyle(color: Colors.grey),
+                      ),
+                      Spacer(),
+                      Text(
+                        learn.createdAt.toString().split(' ')[0],
+                        style: TextStyle(color: Colors.grey, fontSize: 12),
+                      ),
+                    ],
+                  ),
+                ],
               ),
             ),
           ],
-        );
-      }
-    }
-
-    if (learn.imagePath != null) {
-      return Image.network(
-        learn.fullImageUrl,
-        height: 160,
-        width: double.infinity,
-        fit: BoxFit.cover,
-        errorBuilder: (context, error, stackTrace) => Container(
-          height: 160,
-          color: Colors.grey[300],
-          child: Icon(Icons.image),
         ),
-      );
-    }
-
-    return Container(
-      height: 160,
-      color: Colors.grey[300],
-      child: Icon(Icons.article),
+      ),
     );
   }
 
-  void _handleLearnTap(BuildContext context, Learn learn) async {
-    try {
-      await Provider.of<LearnProvider>(context, listen: false).markAsRead(learn.id);
-      
-      // Navigate to the detail screen
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (_) => LearnDetailScreen(learn: learn),
-        ),
-      );
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(e.toString())),
-      );
-    }
+  Widget _buildPlaceholderImage() {
+    return Container(
+      height: 180,
+      color: Colors.grey[300],
+      child: Center(
+        child: Icon(Icons.image, size: 50, color: Colors.grey[500]),
+      ),
+    );
   }
 
   @override
@@ -135,7 +175,7 @@ class _LearnScreenState extends State<LearnScreen> {
         if (i == 0) {
           Navigator.pushReplacementNamed(context, '/home');
         } else if (i == 1) {
-          Navigator.pushReplacementNamed(context, '/learn');
+          // Already on learn
         } else if (i == 2) {
           Navigator.pushReplacementNamed(context, '/report');
         } else if (i == 3) {
@@ -143,9 +183,7 @@ class _LearnScreenState extends State<LearnScreen> {
         }
       },
       child: SafeArea(
-        child: Consumer<LearnProvider>(
-          builder: (context, learnProvider, _) {
-            return Column(
+        child: Column(
           children: [
             Padding(
               padding: const EdgeInsets.only(
@@ -175,300 +213,67 @@ class _LearnScreenState extends State<LearnScreen> {
             ),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: TextField(
-                          controller: _searchController,
-                          onChanged: (value) {
-                            // TODO: Implement search functionality
-                          },
-                      decoration: InputDecoration(
-                        hintText: 'Search resources...',
-                        prefixIcon: Icon(Icons.search),
-                        contentPadding: EdgeInsets.symmetric(
-                          vertical: 0,
-                          horizontal: 12,
-                        ),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        filled: true,
-                        fillColor: Colors.white,
-                      ),
-                    ),
+              child: TextField(
+                onChanged: (value) => setState(() => _searchQuery = value),
+                decoration: InputDecoration(
+                  hintText: 'Search resources...',
+                  prefixIcon: Icon(Icons.search),
+                  contentPadding: EdgeInsets.symmetric(
+                    vertical: 0,
+                    horizontal: 12,
                   ),
-                  SizedBox(width: 10),
-                      PopupMenuButton<String?>(
-                        initialValue: learnProvider.selectedCategoryId,
-                        child: Container(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 12,
-                      ),
-                          decoration: BoxDecoration(
-                            color: Colors.grey[300],
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Row(
-                            children: [
-                              Text(
-                                learnProvider.selectedCategoryId == null
-                                    ? 'All Categories'
-                                    : learnProvider.categories
-                                        .firstWhere(
-                                          (cat) => cat.id == learnProvider.selectedCategoryId,
-                                          orElse: () => LearnCategory(
-                                            id: '',
-                                            name: 'All Categories',
-                                            createdAt: DateTime.now(),
-                                            updatedAt: DateTime.now(),
-                                          ),
-                                        )
-                                        .name,
-                              ),
-                              Icon(Icons.arrow_drop_down),
-                            ],
-                          ),
-                        ),
-                        itemBuilder: (context) => [
-                          PopupMenuItem<String?>(
-                            value: null,
-                            onTap: () => learnProvider.selectCategory(null),
-                            child: Row(
-                              children: [
-                                Icon(
-                                  Icons.clear_all,
-                                  color: learnProvider.selectedCategoryId == null
-                                      ? Color(0xFF7C3AED)
-                                      : Colors.grey,
-                                ),
-                                SizedBox(width: 8),
-                                Text(
-                                  'All Categories',
-                                  style: TextStyle(
-                                    color: learnProvider.selectedCategoryId == null
-                                        ? Color(0xFF7C3AED)
-                                        : Colors.black,
-                                    fontWeight: learnProvider.selectedCategoryId == null
-                                        ? FontWeight.bold
-                                        : FontWeight.normal,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          ...learnProvider.categories.map(
-                            (category) => PopupMenuItem<String?>(
-                              value: category.id,
-                              onTap: () => learnProvider.selectCategory(category.id),
-                              child: Row(
-                                children: [
-                                  Icon(
-                                    Icons.category,
-                                    color: category.id == learnProvider.selectedCategoryId
-                                        ? Color(0xFF7C3AED)
-                                        : Colors.grey,
-                                  ),
-                                  SizedBox(width: 8),
-                                  Text(
-                                    category.name,
-                                    style: TextStyle(
-                                      color: category.id == learnProvider.selectedCategoryId
-                                          ? Color(0xFF7C3AED)
-                                          : Colors.black,
-                                      fontWeight: category.id == learnProvider.selectedCategoryId
-                                          ? FontWeight.bold
-                                          : FontWeight.normal,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ],
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10),
+                    borderSide: BorderSide(color: Colors.grey.shade300),
                   ),
-                ],
+                  filled: true,
+                  fillColor: Colors.white,
+                ),
               ),
             ),
-                if (learnProvider.error != null)
-                  Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Text(
-                      learnProvider.error!,
-                      style: TextStyle(color: Colors.red),
-                    ),
-                  ),
-                Expanded(
-                  child: RefreshIndicator(
-                    onRefresh: () => learnProvider.loadLearns(refresh: true),
-                    child: ListView.builder(
-                      controller: _scrollController,
-                      padding: EdgeInsets.symmetric(vertical: 8),
-                      itemCount: learnProvider.learns.length + (learnProvider.isLoading ? 1 : 0),
-                      itemBuilder: (context, index) {
-                        if (index == learnProvider.learns.length) {
-                          return Center(
-                            child: Padding(
-                              padding: const EdgeInsets.all(16.0),
-                              child: CircularProgressIndicator(),
-                            ),
-                          );
-                        }
+            Expanded(
+              child: Consumer<LearnProvider>(
+                builder: (context, learnProvider, child) {
+                  if (learnProvider.isLoading) {
+                    return Center(child: CircularProgressIndicator());
+                  }
 
-                        final learn = learnProvider.learns[index];
-                        return Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 20,
-                  vertical: 10,
-                ),
-                child: GestureDetector(
-                            onTap: () => _handleLearnTap(context, learn),
-                  child: Card(
-                    elevation: 4,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Stack(
-                          children: [
-                            ClipRRect(
-                              borderRadius: BorderRadius.vertical(
-                                top: Radius.circular(16),
-                              ),
-                                        child: _buildMediaPreview(learn),
-                                      ),
-                                      if (learn.category != null)
-                            Positioned(
-                              top: 12,
-                              left: 12,
-                              child: Container(
-                                padding: EdgeInsets.symmetric(
-                                  horizontal: 10,
-                                  vertical: 4,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: Colors.black.withOpacity(0.7),
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                                child: Text(
-                                              learn.category!.name,
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w500,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                          ],
+                  if (learnProvider.error != null) {
+                    return Center(
+                      child: Padding(
+                        padding: const EdgeInsets.all(20.0),
+                        child: Text(
+                          'Error: ${learnProvider.error}',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(color: Colors.red),
                         ),
-                        Padding(
-                                    padding: const EdgeInsets.all(16.0),
-                                    child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          learn.title,
-                            style: TextStyle(
-                                            fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
-                                        SizedBox(height: 8),
-                                        Text(
-                                          learn.content,
-                                          maxLines: 3,
-                                          overflow: TextOverflow.ellipsis,
-                            style: TextStyle(
-                              fontSize: 14,
-                                            color: Colors.grey[600],
-                                          ),
-                                        ),
-                                        SizedBox(height: 16),
-                                        Row(
-                            children: [
-                                Text(
-                                              learn.createdAt.toString().split(' ')[0],
-                                  style: TextStyle(
-                                                fontSize: 12,
-                                                color: Colors.grey,
-                                              ),
-                                            ),
-                                            Spacer(),
-                                            IconButton(
-                                              icon: Icon(
-                                                learn.isLiked
-                                                    ? Icons.favorite
-                                                    : Icons.favorite_border,
-                                                color: learn.isLiked
-                                                    ? Colors.red
-                                                    : Colors.grey,
-                                              ),
-                                              onPressed: () async {
-                                                try {
-                                                  await learnProvider.toggleLike(learn.id);
-                                                } catch (e) {
-                                                  ScaffoldMessenger.of(context).showSnackBar(
-                                                    SnackBar(content: Text(e.toString())),
-                                                  );
-                                                }
-                                              },
-                                            ),
-                                Text(
-                                              learn.likesCount.toString(),
-                                  style: TextStyle(
-                                                color: Colors.grey,
-                                              ),
-                                            ),
-                                            SizedBox(width: 16),
-                                            TextButton.icon(
-                                              onPressed: () async {
-                                                try {
-                                                  await learnProvider.markAsRead(learn.id);
-                                                  ScaffoldMessenger.of(context).showSnackBar(
-                                                    SnackBar(
-                                                      content: Text('Marked as read'),
-                                                      backgroundColor: Colors.green,
-                                                    ),
-                                                  );
-                                                } catch (e) {
-                                                  ScaffoldMessenger.of(context).showSnackBar(
-                                                    SnackBar(content: Text(e.toString())),
-                                    );
-                                  }
-                                },
-                                              icon: Icon(
-                                                learn.isRead ? Icons.check_circle : Icons.check_circle_outline,
-                                                color: learn.isRead ? Colors.green : Colors.grey,
-                                                size: 20,
-                                              ),
-                                              label: Text(
-                                                'Mark as read',
-                                                style: TextStyle(
-                                                  color: learn.isRead ? Colors.green : Colors.grey,
-                                                ),
-                                              ),
-                                            ),
-                                          ],
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                          ),
-                        );
-                      },
-                ),
+                      ),
+                    );
+                  }
+
+                  final filteredList = learnProvider.learns.where((learn) {
+                    final query = _searchQuery.toLowerCase();
+                    return learn.title.toLowerCase().contains(query) ||
+                        learn.content.toLowerCase().contains(query) ||
+                        (learn.category?.name.toLowerCase().contains(query) ??
+                            false);
+                  }).toList();
+
+                  if (filteredList.isEmpty) {
+                    return Center(child: Text('No resources found.'));
+                  }
+
+                  return ListView.builder(
+                    padding: EdgeInsets.only(top: 8, bottom: 80),
+                    itemCount: filteredList.length,
+                    itemBuilder: (context, index) {
+                      return _buildLearnItem(filteredList[index]);
+                    },
+                  );
+                },
               ),
             ),
           ],
-            );
-          },
         ),
       ),
     );

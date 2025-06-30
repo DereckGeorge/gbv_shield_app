@@ -4,64 +4,72 @@ import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 import '../../models/learn.dart';
 import '../../providers/learn_provider.dart';
 import 'youtube_player_screen.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'webview_screen.dart';
 
 class LearnDetailScreen extends StatelessWidget {
   final Learn learn;
 
-  const LearnDetailScreen({
-    Key? key,
-    required this.learn,
-  }) : super(key: key);
+  const LearnDetailScreen({Key? key, required this.learn}) : super(key: key);
 
   Widget _buildMediaContent() {
-    if (learn.youtubeUrl != null) {
-      final videoId = YoutubePlayer.convertUrlToId(learn.youtubeUrl!);
-      if (videoId != null) {
-        return GestureDetector(
-          onTap: () => Navigator.push(
-            navigatorKey.currentContext!,
-            MaterialPageRoute(
-              builder: (_) => YoutubePlayerScreen(
-                videoId: videoId,
-                title: learn.title,
+    String? videoId;
+
+    if (learn.youtubeUrl != null && learn.youtubeUrl!.isNotEmpty) {
+      videoId = YoutubePlayer.convertUrlToId(learn.youtubeUrl!);
+    }
+
+    if (videoId != null) {
+      return GestureDetector(
+        onTap: () {
+          // Ensure context is available before navigating
+          if (navigatorKey.currentContext != null) {
+            Navigator.push(
+              navigatorKey.currentContext!,
+              MaterialPageRoute(
+                builder: (_) =>
+                    YoutubePlayerScreen(videoId: videoId!, title: learn.title),
+              ),
+            );
+          }
+        },
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            Image.network(
+              // Use hqdefault first as it's more reliable
+              'https://img.youtube.com/vi/$videoId/hqdefault.jpg',
+              height: 240,
+              width: double.infinity,
+              fit: BoxFit.cover,
+              errorBuilder: (context, error, stackTrace) {
+                // Fallback for when even hqdefault fails
+                return Container(
+                  height: 240,
+                  color: Colors.grey[300],
+                  child: Icon(
+                    Icons.play_circle_outline,
+                    size: 50,
+                    color: Colors.grey[600],
+                  ),
+                );
+              },
+            ),
+            // Play button overlay
+            Container(
+              height: 240,
+              color: Colors.black26,
+              child: Center(
+                child: Icon(
+                  Icons.play_circle_outline,
+                  color: Colors.white,
+                  size: 64,
+                ),
               ),
             ),
-          ),
-          child: Stack(
-            children: [
-              Image.network(
-                'https://img.youtube.com/vi/$videoId/maxresdefault.jpg',
-                height: 240,
-                width: double.infinity,
-                fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) => Image.network(
-                  'https://img.youtube.com/vi/$videoId/hqdefault.jpg',
-                  height: 240,
-                  width: double.infinity,
-                  fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) => Container(
-                    height: 240,
-                    color: Colors.grey[300],
-                    child: Icon(Icons.play_circle_outline, size: 50),
-                  ),
-                ),
-              ),
-              Positioned.fill(
-                child: Container(
-                  color: Colors.black26,
-                  child: Center(
-                    child: Icon(
-                      Icons.play_circle_outline,
-                      color: Colors.white,
-                      size: 64,
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        );
-      }
+          ],
+        ),
+      );
     }
 
     if (learn.imagePath != null) {
@@ -127,9 +135,9 @@ class LearnDetailScreen extends StatelessWidget {
                       try {
                         await learnProvider.toggleLike(learn.id);
                       } catch (e) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text(e.toString())),
-                        );
+                        ScaffoldMessenger.of(
+                          context,
+                        ).showSnackBar(SnackBar(content: Text(e.toString())));
                       }
                     },
                   ),
@@ -171,33 +179,61 @@ class LearnDetailScreen extends StatelessWidget {
                       SizedBox(height: 8),
                       Row(
                         children: [
-                          Icon(Icons.calendar_today, size: 16, color: Colors.grey),
+                          Icon(
+                            Icons.calendar_today,
+                            size: 16,
+                            color: Colors.grey,
+                          ),
                           SizedBox(width: 4),
                           Text(
                             learn.createdAt.toString().split(' ')[0],
-                            style: TextStyle(
-                              color: Colors.grey,
-                            ),
+                            style: TextStyle(color: Colors.grey),
                           ),
                           SizedBox(width: 16),
                           Icon(Icons.favorite, size: 16, color: Colors.grey),
                           SizedBox(width: 4),
                           Text(
                             '${learn.likesCount} likes',
-                            style: TextStyle(
-                              color: Colors.grey,
-                            ),
+                            style: TextStyle(color: Colors.grey),
                           ),
                         ],
                       ),
                       SizedBox(height: 24),
                       Text(
                         learn.content,
-                        style: TextStyle(
-                          fontSize: 16,
-                          height: 1.6,
-                        ),
+                        style: TextStyle(fontSize: 16, height: 1.6),
                       ),
+                      SizedBox(height: 32),
+                      if (learn.url != null &&
+                          (learn.youtubeUrl == null ||
+                              learn.youtubeUrl!.isEmpty))
+                        Center(
+                          child: ElevatedButton.icon(
+                            onPressed: () {
+                              if (navigatorKey.currentContext != null) {
+                                Navigator.push(
+                                  navigatorKey.currentContext!,
+                                  MaterialPageRoute(
+                                    builder: (_) => WebViewScreen(
+                                      url: learn.url!,
+                                      title: learn.title,
+                                    ),
+                                  ),
+                                );
+                              }
+                            },
+                            icon: Icon(Icons.open_in_new),
+                            label: Text('View Full Article'),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Color(0xFF7C3AED),
+                              foregroundColor: Colors.white,
+                              padding: EdgeInsets.symmetric(
+                                horizontal: 24,
+                                vertical: 12,
+                              ),
+                            ),
+                          ),
+                        ),
                       SizedBox(height: 32),
                       if (!learn.isRead)
                         Center(
@@ -237,10 +273,7 @@ class LearnDetailScreen extends StatelessWidget {
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              Icon(
-                                Icons.check_circle,
-                                color: Colors.green,
-                              ),
+                              Icon(Icons.check_circle, color: Colors.green),
                               SizedBox(width: 8),
                               Text(
                                 'Marked as read',
@@ -265,4 +298,4 @@ class LearnDetailScreen extends StatelessWidget {
 }
 
 // Add this at the top level of the file
-final navigatorKey = GlobalKey<NavigatorState>(); 
+final navigatorKey = GlobalKey<NavigatorState>();
