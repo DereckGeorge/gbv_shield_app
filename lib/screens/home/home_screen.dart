@@ -40,9 +40,7 @@ class _HomeScreenState extends State<HomeScreen> {
               color: Colors.grey[100],
               borderRadius: BorderRadius.circular(16),
             ),
-            child: Center(
-              child: CircularProgressIndicator(),
-            ),
+            child: Center(child: CircularProgressIndicator()),
           );
         }
 
@@ -85,9 +83,7 @@ class _HomeScreenState extends State<HomeScreen> {
               color: Colors.grey[100],
               borderRadius: BorderRadius.circular(16),
             ),
-            child: Center(
-              child: Text('No tip available'),
-            ),
+            child: Center(child: Text('No tip available')),
           );
         }
 
@@ -139,7 +135,9 @@ class _HomeScreenState extends State<HomeScreen> {
                         child: Row(
                           children: [
                             Icon(
-                              tip.isLiked ? Icons.favorite : Icons.favorite_border,
+                              tip.isLiked
+                                  ? Icons.favorite
+                                  : Icons.favorite_border,
                               color: Colors.purple,
                               size: 20,
                             ),
@@ -224,10 +222,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     SizedBox(height: 8),
                     Text(
                       'No saved stories yet',
-                      style: TextStyle(
-                        color: Colors.grey[600],
-                        fontSize: 16,
-                      ),
+                      style: TextStyle(color: Colors.grey[600], fontSize: 16),
                     ),
                   ],
                 ),
@@ -277,7 +272,10 @@ class _HomeScreenState extends State<HomeScreen> {
                                   return Container(
                                     height: 160,
                                     color: Colors.grey[200],
-                                    child: Icon(Icons.image_not_supported, color: Colors.grey[400]),
+                                    child: Icon(
+                                      Icons.image_not_supported,
+                                      color: Colors.grey[400],
+                                    ),
                                   );
                                 },
                               ),
@@ -306,10 +304,15 @@ class _HomeScreenState extends State<HomeScreen> {
                                       ),
                                     ),
                                     GestureDetector(
-                                      onTap: () => storyProvider.toggleSave(story.id),
+                                      onTap: () =>
+                                          storyProvider.toggleSave(story.id),
                                       child: Icon(
-                                        story.isSaved ? Icons.bookmark : Icons.bookmark_border,
-                                        color: story.isSaved ? Color(0xFF7C3AED) : Colors.black54,
+                                        story.isSaved
+                                            ? Icons.bookmark
+                                            : Icons.bookmark_border,
+                                        color: story.isSaved
+                                            ? Color(0xFF7C3AED)
+                                            : Colors.black54,
                                       ),
                                     ),
                                   ],
@@ -335,13 +338,18 @@ class _HomeScreenState extends State<HomeScreen> {
                                   child: Row(
                                     children: [
                                       GestureDetector(
-                                        onTap: () => storyProvider.toggleLike(story.id),
+                                        onTap: () =>
+                                            storyProvider.toggleLike(story.id),
                                         child: Row(
                                           children: [
                                             Icon(
-                                              story.isLikedByUser ? Icons.favorite : Icons.favorite_border,
+                                              story.isLikedByUser
+                                                  ? Icons.favorite
+                                                  : Icons.favorite_border,
                                               size: 20,
-                                              color: story.isLikedByUser ? Colors.red : Colors.grey[600],
+                                              color: story.isLikedByUser
+                                                  ? Colors.red
+                                                  : Colors.grey[600],
                                             ),
                                             SizedBox(width: 4),
                                             Text(
@@ -362,16 +370,20 @@ class _HomeScreenState extends State<HomeScreen> {
                                             color: Color(0xFF7C3AED),
                                           ),
                                           shape: RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.circular(8),
+                                            borderRadius: BorderRadius.circular(
+                                              8,
+                                            ),
                                           ),
                                           padding: EdgeInsets.symmetric(
                                             horizontal: 12,
                                             vertical: 4,
                                           ),
                                           minimumSize: Size(0, 28),
-                                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                          tapTargetSize:
+                                              MaterialTapTargetSize.shrinkWrap,
                                         ),
-                                        onPressed: () => _openStoryDetails(context, story),
+                                        onPressed: () =>
+                                            _openStoryDetails(context, story),
                                         child: Text(
                                           'Read more',
                                           style: TextStyle(
@@ -412,16 +424,16 @@ class _HomeScreenState extends State<HomeScreen> {
                                   return Container(
                                     width: 130,
                                     color: Colors.grey[200],
-                                    child: Icon(Icons.image_not_supported, color: Colors.grey[400]),
+                                    child: Icon(
+                                      Icons.image_not_supported,
+                                      color: Colors.grey[400],
+                                    ),
                                   );
                                 },
                               ),
                             ),
                           ),
-                          VerticalDivider(
-                            width: 1,
-                            color: Colors.grey[200],
-                          ),
+                          VerticalDivider(width: 1, color: Colors.grey[200]),
                           Expanded(
                             child: Padding(
                               padding: const EdgeInsets.symmetric(
@@ -446,10 +458,15 @@ class _HomeScreenState extends State<HomeScreen> {
                                         ),
                                       ),
                                       GestureDetector(
-                                        onTap: () => storyProvider.toggleSave(story.id),
+                                        onTap: () =>
+                                            storyProvider.toggleSave(story.id),
                                         child: Icon(
-                                          story.isSaved ? Icons.bookmark : Icons.bookmark_border,
-                                          color: story.isSaved ? Color(0xFF7C3AED) : Colors.black54,
+                                          story.isSaved
+                                              ? Icons.bookmark
+                                              : Icons.bookmark_border,
+                                          color: story.isSaved
+                                              ? Color(0xFF7C3AED)
+                                              : Colors.black54,
                                         ),
                                       ),
                                     ],
@@ -475,13 +492,19 @@ class _HomeScreenState extends State<HomeScreen> {
                                     child: Row(
                                       children: [
                                         GestureDetector(
-                                          onTap: () => storyProvider.toggleLike(story.id),
+                                          onTap: () => storyProvider.toggleLike(
+                                            story.id,
+                                          ),
                                           child: Row(
                                             children: [
                                               Icon(
-                                                story.isLikedByUser ? Icons.favorite : Icons.favorite_border,
+                                                story.isLikedByUser
+                                                    ? Icons.favorite
+                                                    : Icons.favorite_border,
                                                 size: 20,
-                                                color: story.isLikedByUser ? Colors.red : Colors.grey[600],
+                                                color: story.isLikedByUser
+                                                    ? Colors.red
+                                                    : Colors.grey[600],
                                               ),
                                               SizedBox(width: 4),
                                               Text(
@@ -502,16 +525,19 @@ class _HomeScreenState extends State<HomeScreen> {
                                               color: Color(0xFF7C3AED),
                                             ),
                                             shape: RoundedRectangleBorder(
-                                              borderRadius: BorderRadius.circular(8),
+                                              borderRadius:
+                                                  BorderRadius.circular(8),
                                             ),
                                             padding: EdgeInsets.symmetric(
                                               horizontal: 12,
                                               vertical: 4,
                                             ),
                                             minimumSize: Size(0, 28),
-                                            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                            tapTargetSize: MaterialTapTargetSize
+                                                .shrinkWrap,
                                           ),
-                                          onPressed: () => _openStoryDetails(context, story),
+                                          onPressed: () =>
+                                              _openStoryDetails(context, story),
                                           child: Text(
                                             'Read more',
                                             style: TextStyle(
@@ -582,9 +608,9 @@ class _HomeScreenState extends State<HomeScreen> {
                       Navigator.pushReplacementNamed(context, '/profile');
                     },
                     child: Icon(
-                    Icons.account_circle_outlined,
-                    color: Colors.black,
-                    size: 28,
+                      Icons.account_circle_outlined,
+                      color: Colors.black,
+                      size: 28,
                     ),
                   ),
                 ],
@@ -692,7 +718,10 @@ class _HomeScreenState extends State<HomeScreen> {
                             size: 16,
                           ),
                           onTap: () {
-                            Navigator.pushNamed(context, '/dummyNotepad');
+                            Navigator.pushNamed(
+                              context,
+                              '/quick-exit-settings',
+                            );
                           },
                         ),
                       ],
@@ -727,31 +756,33 @@ class _HomeScreenState extends State<HomeScreen> {
                   context,
                   MaterialPageRoute(builder: (_) => StoriesListScreen()),
                 ),
-              child: Stack(
-                children: [
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(12),
-                    child: Image.asset(
-                      'assets/gbvcommunity.png',
-                      height: 140,
-                      width: double.infinity,
-                      fit: BoxFit.cover,
-                    ),
-                  ),
-                  Positioned(
-                    left: 16,
-                    top: 16,
-                    child: Text(
-                      'GBV Community',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 20,
-                        shadows: [Shadow(blurRadius: 6, color: Colors.black45)],
+                child: Stack(
+                  children: [
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(12),
+                      child: Image.asset(
+                        'assets/gbvcommunity.png',
+                        height: 140,
+                        width: double.infinity,
+                        fit: BoxFit.cover,
                       ),
                     ),
-                  ),
-                ],
+                    Positioned(
+                      left: 16,
+                      top: 16,
+                      child: Text(
+                        'GBV Community',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 20,
+                          shadows: [
+                            Shadow(blurRadius: 6, color: Colors.black45),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),

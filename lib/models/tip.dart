@@ -18,7 +18,7 @@ class Tip {
       id: json['id'].toString(),
       title: json['title'] ?? '',
       content: json['content'] ?? '',
-      likesCount: json['likes_count'] ?? 0,
+      likesCount: int.tryParse(json['likes_count']?.toString() ?? '') ?? 0,
       isLiked: json['is_liked'] ?? false,
     );
   }

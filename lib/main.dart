@@ -28,48 +28,51 @@ import 'providers/emergency_provider.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await dotenv.load(fileName: ".env");
+
   final prefs = await SharedPreferences.getInstance();
   final apiService = ApiService(prefs);
+  final bool quickExitEnabled = prefs.getBool('quickExitEnabled') ?? false;
 
   runApp(
-    MultiProvider(
-      providers: [
-        ChangeNotifierProvider(create: (_) => AuthProvider()),
-        ChangeNotifierProxyProvider<AuthProvider, IncidentProvider>(
-          create: (context) => IncidentProvider(context.read<AuthProvider>()),
-          update: (context, auth, previous) => IncidentProvider(auth),
-        ),
-        ChangeNotifierProvider(
-          create: (_) =>
-              EmergencyContactProvider(EmergencyContactService(apiService)),
-        ),
-      ],
-      child: const MyApp(),
+    MyApp(
+      initialRoute: quickExitEnabled ? '/dummy-notepad' : '/splash',
+      apiService: apiService,
     ),
   );
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  final String initialRoute;
+  final ApiService apiService;
+
+  const MyApp({Key? key, required this.initialRoute, required this.apiService})
+    : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => AuthProvider(), lazy: false),
-        ChangeNotifierProvider(
+        ChangeNotifierProxyProvider<AuthProvider, LearnProvider>(
           create: (context) =>
               LearnProvider(Provider.of<AuthProvider>(context, listen: false)),
+          update: (context, auth, _) => LearnProvider(auth),
         ),
-        ChangeNotifierProvider(
+        ChangeNotifierProxyProvider<AuthProvider, IncidentProvider>(
           create: (context) => IncidentProvider(
             Provider.of<AuthProvider>(context, listen: false),
           ),
+          update: (context, auth, _) => IncidentProvider(auth),
         ),
-        ChangeNotifierProvider(
+        ChangeNotifierProxyProvider<AuthProvider, EmergencyProvider>(
           create: (context) => EmergencyProvider(
             Provider.of<AuthProvider>(context, listen: false),
           ),
+          update: (context, auth, _) => EmergencyProvider(auth),
+        ),
+        ChangeNotifierProvider(
+          create: (_) =>
+              EmergencyContactProvider(EmergencyContactService(apiService)),
         ),
         ChangeNotifierProvider(create: (_) => StoryProvider(), lazy: false),
         ChangeNotifierProxyProvider<AuthProvider, TipProvider>(
@@ -78,31 +81,28 @@ class MyApp extends StatelessWidget {
           lazy: false,
         ),
       ],
-      child: Consumer<AuthProvider>(
-        builder: (context, authProvider, _) {
-          return MaterialApp(
-            title: 'GBV Shield',
-            debugShowCheckedModeBanner: false,
-            theme: ThemeData(
-              primarySwatch: Colors.purple,
-              primaryColor: const Color(0xFF7C3AED),
-              scaffoldBackgroundColor: Colors.white,
-            ),
-            initialRoute: '/splash',
-            routes: {
-              '/splash': (context) => const SplashScreen(),
-              '/login': (context) => const LoginScreen(),
-              '/signup': (context) => const SignupScreen(),
-              '/forgot-password': (context) => const ForgotPasswordScreen(),
-              '/home': (context) => const HomeScreen(),
-              '/learn': (context) => const LearnScreen(),
-              '/report': (context) => const ReportScreen(),
-              '/community': (context) => const CommunityChatScreen(),
-              '/dummyNotepad': (context) => const QuickExitSettingsScreen(),
-              '/profile': (context) => const ProfileScreen(),
-              '/my-reports': (context) => const MyReportsScreen(),
-            },
-          );
+      child: MaterialApp(
+        title: 'GBV Shield',
+        debugShowCheckedModeBanner: false,
+        theme: ThemeData(
+          primarySwatch: Colors.purple,
+          primaryColor: const Color(0xFF7C3AED),
+          scaffoldBackgroundColor: Colors.white,
+        ),
+        initialRoute: initialRoute,
+        routes: {
+          '/splash': (context) => const SplashScreen(),
+          '/dummy-notepad': (context) => const DummyNotepadScreen(),
+          '/login': (context) => const LoginScreen(),
+          '/signup': (context) => const SignupScreen(),
+          '/forgot-password': (context) => const ForgotPasswordScreen(),
+          '/home': (context) => const HomeScreen(),
+          '/learn': (context) => const LearnScreen(),
+          '/report': (context) => const ReportScreen(),
+          '/community': (context) => const CommunityChatScreen(),
+          '/quick-exit-settings': (context) => const QuickExitSettingsScreen(),
+          '/profile': (context) => const ProfileScreen(),
+          '/my-reports': (context) => const MyReportsScreen(),
         },
       ),
     );
