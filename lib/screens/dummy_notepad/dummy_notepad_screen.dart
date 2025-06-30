@@ -231,14 +231,12 @@ class _DummyNotepadScreenState extends State<DummyNotepadScreen> {
     });
   }
 
-  void _checkPassword() {
+  void _checkPassword() async {
     if (_controller.text.trim() == _savedPassword &&
         _savedPassword.isNotEmpty) {
-      Navigator.pushAndRemoveUntil(
-        context,
-        MaterialPageRoute(builder: (context) => const HomeScreen()),
-        (route) => false,
-      );
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool('quickExitEnabled', false);
+      Navigator.pushReplacementNamed(context, '/splash');
     } else {
       setState(() {
         _error = 'Incorrect password. This is just a notepad.';
@@ -276,13 +274,9 @@ class _DummyNotepadScreenState extends State<DummyNotepadScreen> {
             TextButton(
               onPressed: () async {
                 final prefs = await SharedPreferences.getInstance();
-                await prefs.remove('quickExitPassword');
                 await prefs.setBool('quickExitEnabled', false);
-                Navigator.pushAndRemoveUntil(
-                  context,
-                  MaterialPageRoute(builder: (context) => const HomeScreen()),
-                  (route) => false,
-                );
+                await prefs.remove('quickExitPassword');
+                Navigator.pushReplacementNamed(context, '/splash');
               },
               child: Text('Forgot Password? Reset'),
             ),
