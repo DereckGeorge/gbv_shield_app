@@ -266,7 +266,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             child: ClipRRect(
                               borderRadius: BorderRadius.circular(12),
                               child: Image.network(
-                                'https://gbvfield.e-saloon.online/public/${story.coverImage}',
+                              story.coverImage,
                                 height: 160,
                                 width: double.infinity,
                                 fit: BoxFit.cover,
@@ -418,7 +418,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             child: ClipRRect(
                               borderRadius: BorderRadius.circular(12),
                               child: Image.network(
-                                'https://gbvfield.e-saloon.online/public/${story.coverImage}',
+                                story.coverImage,
                                 width: 130,
                                 height: double.infinity,
                                 fit: BoxFit.cover,

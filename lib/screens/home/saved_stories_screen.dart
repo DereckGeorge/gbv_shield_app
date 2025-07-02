@@ -82,7 +82,7 @@ class _SavedStoriesScreenState extends State<SavedStoriesScreen> {
                 child: ClipRRect(
                   borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
                   child: Image.network(
-                    'https://gbvfield.e-saloon.online/public/${story.coverImage}',
+                    story.coverImage,
                     fit: BoxFit.cover,
                     errorBuilder: (context, error, stackTrace) {
                       return Container(

@@ -90,7 +90,7 @@ class _StoryDetailsScreenState extends State<StoryDetailsScreen> {
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(14),
                 child: Image.network(
-                  'https://gbvfield.e-saloon.online/public/${widget.story.coverImage}',
+                  widget.story.coverImage,
                   fit: BoxFit.cover,
                   errorBuilder: (context, error, stackTrace) {
                     return Container(

@@ -35,13 +35,22 @@ class Learn {
   String get fullImageUrl {
     if (imagePath == null) return '';
     final baseUrl = dotenv.env['API_BASE_URL'] ?? '';
+
+    // Debug prints
+    print('--- Learn Image Debug: Base URL from .env: "$baseUrl"');
+    print('--- Learn Image Debug: Image path: "$imagePath"');
+
     final cleanBaseUrl = baseUrl.endsWith('/')
         ? baseUrl.substring(0, baseUrl.length - 1)
         : baseUrl;
     final cleanImagePath = imagePath!.startsWith('/')
         ? imagePath!.substring(1)
         : imagePath!;
-    return '$cleanBaseUrl/$cleanImagePath';
+
+    final finalUrl = '$cleanBaseUrl/$cleanImagePath';
+    print('--- Learn Image Debug: Final constructed URL: "$finalUrl"');
+
+    return finalUrl;
   }
 
   factory Learn.fromJson(Map<String, dynamic> json) {

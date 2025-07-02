@@ -45,6 +45,7 @@ class Story {
 
     // --- NEW DEBUGGING STEP ---
     debugPrint("--- Image Debug: Base URL from .env: '$baseUrl'");
+    debugPrint("--- Image Debug: Cover image path: '$coverImage'");
 
     final cleanBaseUrl = baseUrl.endsWith('/')
         ? baseUrl.substring(0, baseUrl.length - 1)
@@ -64,9 +65,9 @@ class Story {
   factory Story.fromJson(Map<String, dynamic> json) {
     return Story(
       id: json['id'].toString(),
-      title: json['title'],
-      content: json['content'],
-      coverImage: json['cover_image'],
+      title: json['title'] ?? '',
+      content: json['content'] ?? '',
+      coverImage: json['cover_image'] ?? '',
       likesCount: int.tryParse(json['likes_count']?.toString() ?? '0') ?? 0,
       isLikedByUser: json['is_liked_by_user'] ?? false,
       isSaved: json['is_saved'] ?? false,
