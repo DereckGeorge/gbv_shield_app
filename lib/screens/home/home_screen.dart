@@ -19,8 +19,10 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    Provider.of<StoryProvider>(context, listen: false).loadLatestSavedStory();
-    Provider.of<TipProvider>(context, listen: false).loadTipOfTheDay();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Provider.of<StoryProvider>(context, listen: false).loadLatestSavedStory();
+      Provider.of<TipProvider>(context, listen: false).loadTipOfTheDay();
+    });
   }
 
   void _openStoryDetails(BuildContext context, story) {
@@ -264,7 +266,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             child: ClipRRect(
                               borderRadius: BorderRadius.circular(12),
                               child: Image.network(
-                                story.coverImage,
+                                'https://gbvfield.e-saloon.online/public/${story.coverImage}',
                                 height: 160,
                                 width: double.infinity,
                                 fit: BoxFit.cover,
@@ -416,7 +418,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             child: ClipRRect(
                               borderRadius: BorderRadius.circular(12),
                               child: Image.network(
-                                story.coverImage,
+                                'https://gbvfield.e-saloon.online/public/${story.coverImage}',
                                 width: 130,
                                 height: double.infinity,
                                 fit: BoxFit.cover,

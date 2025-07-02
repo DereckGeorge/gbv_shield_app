@@ -1,3 +1,6 @@
+import 'package:flutter/foundation.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+
 class Story {
   final String id;
   final String title;
@@ -19,13 +22,52 @@ class Story {
     required this.createdAt,
   });
 
+  String get fullCoverImageUrl {
+    if (coverImage.isEmpty) {
+      return '';
+    }
+    // Check if the coverImage is already a full URL
+    if (coverImage.startsWith('http')) {
+      return coverImage;
+    }
+
+    final baseUrl = dotenv.env['API_BASE_URL'];
+
+    // If baseUrl is missing, log an error and return an empty string
+    // to prevent a crash and show a placeholder image.
+    if (baseUrl == null || baseUrl.isEmpty) {
+      debugPrint(
+        "--- DEBUG WARNING: API_BASE_URL not found in .env file. "
+        "Image URLs will be invalid. ---",
+      );
+      return ''; // Return empty string to trigger errorBuilder
+    }
+
+    // --- NEW DEBUGGING STEP ---
+    debugPrint("--- Image Debug: Base URL from .env: '$baseUrl'");
+
+    final cleanBaseUrl = baseUrl.endsWith('/')
+        ? baseUrl.substring(0, baseUrl.length - 1)
+        : baseUrl;
+    final cleanImagePath = coverImage.startsWith('/')
+        ? coverImage.substring(1)
+        : coverImage;
+
+    final finalUrl = '$cleanBaseUrl/$cleanImagePath';
+
+    // --- NEW DEBUGGING STEP ---
+    debugPrint("--- Image Debug: Final constructed URL: '$finalUrl'");
+
+    return finalUrl;
+  }
+
   factory Story.fromJson(Map<String, dynamic> json) {
     return Story(
       id: json['id'].toString(),
       title: json['title'],
       content: json['content'],
       coverImage: json['cover_image'],
-      likesCount: json['likes_count'] ?? 0,
+      likesCount: int.tryParse(json['likes_count']?.toString() ?? '0') ?? 0,
       isLikedByUser: json['is_liked_by_user'] ?? false,
       isSaved: json['is_saved'] ?? false,
       createdAt: DateTime.parse(json['created_at']),
@@ -54,4 +96,3 @@ class Story {
     );
   }
 }
- 

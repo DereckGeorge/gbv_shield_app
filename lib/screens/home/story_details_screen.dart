@@ -32,7 +32,9 @@ class _StoryDetailsScreenState extends State<StoryDetailsScreen> {
               return IconButton(
                 icon: Icon(
                   widget.story.isSaved ? Icons.bookmark : Icons.bookmark_border,
-                  color: widget.story.isSaved ? Color(0xFF7C3AED) : Colors.black54,
+                  color: widget.story.isSaved
+                      ? Color(0xFF7C3AED)
+                      : Colors.black54,
                 ),
                 onPressed: () async {
                   await storyProvider.toggleSave(widget.story.id);
@@ -47,7 +49,10 @@ class _StoryDetailsScreenState extends State<StoryDetailsScreen> {
                             ),
                             TextButton(
                               onPressed: () {
-                                Navigator.pushReplacementNamed(context, '/login');
+                                Navigator.pushReplacementNamed(
+                                  context,
+                                  '/login',
+                                );
                               },
                               child: Text(
                                 'Log in',
@@ -80,20 +85,21 @@ class _StoryDetailsScreenState extends State<StoryDetailsScreen> {
               width: double.infinity,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(16),
-                border: Border.all(
-                  color: Colors.grey.shade200,
-                  width: 2,
-                ),
+                border: Border.all(color: Colors.grey.shade200, width: 2),
               ),
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(14),
                 child: Image.network(
-                  widget.story.coverImage,
+                  'https://gbvfield.e-saloon.online/public/${widget.story.coverImage}',
                   fit: BoxFit.cover,
                   errorBuilder: (context, error, stackTrace) {
                     return Container(
                       color: Colors.grey[200],
-                      child: Icon(Icons.image_not_supported, color: Colors.grey[400], size: 48),
+                      child: Icon(
+                        Icons.image_not_supported,
+                        color: Colors.grey[400],
+                        size: 48,
+                      ),
                     );
                   },
                 ),
@@ -113,18 +119,24 @@ class _StoryDetailsScreenState extends State<StoryDetailsScreen> {
                     return GestureDetector(
                       onTap: () async {
                         await storyProvider.toggleLike(widget.story.id);
-                        if (storyProvider.error?.contains('Please log in') ?? false) {
+                        if (storyProvider.error?.contains('Please log in') ??
+                            false) {
                           if (!mounted) return;
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
                               content: Row(
                                 children: [
                                   Expanded(
-                                    child: Text('Please log in to like stories'),
+                                    child: Text(
+                                      'Please log in to like stories',
+                                    ),
                                   ),
                                   TextButton(
                                     onPressed: () {
-                                      Navigator.pushReplacementNamed(context, '/login');
+                                      Navigator.pushReplacementNamed(
+                                        context,
+                                        '/login',
+                                      );
                                     },
                                     child: Text(
                                       'Log in',
@@ -144,9 +156,13 @@ class _StoryDetailsScreenState extends State<StoryDetailsScreen> {
                       child: Row(
                         children: [
                           Icon(
-                            widget.story.isLikedByUser ? Icons.favorite : Icons.favorite_border,
+                            widget.story.isLikedByUser
+                                ? Icons.favorite
+                                : Icons.favorite_border,
                             size: 24,
-                            color: widget.story.isLikedByUser ? Colors.red : Colors.grey[600],
+                            color: widget.story.isLikedByUser
+                                ? Colors.red
+                                : Colors.grey[600],
                           ),
                           SizedBox(width: 4),
                           Text(
@@ -166,15 +182,16 @@ class _StoryDetailsScreenState extends State<StoryDetailsScreen> {
             SizedBox(height: 12),
             Text(
               widget.story.content,
-              style: TextStyle(fontSize: 16, color: Colors.black87, height: 1.5),
+              style: TextStyle(
+                fontSize: 16,
+                color: Colors.black87,
+                height: 1.5,
+              ),
             ),
             SizedBox(height: 16),
             Text(
               'Posted on ${widget.story.createdAt.day}/${widget.story.createdAt.month}/${widget.story.createdAt.year}',
-              style: TextStyle(
-                color: Colors.grey[600],
-                fontSize: 14,
-              ),
+              style: TextStyle(color: Colors.grey[600], fontSize: 14),
             ),
           ],
         ),
@@ -182,4 +199,3 @@ class _StoryDetailsScreenState extends State<StoryDetailsScreen> {
     );
   }
 }
- 

@@ -33,12 +33,15 @@ class _StoriesListScreenState extends State<StoriesListScreen> {
   }
 
   void _onScroll() {
-    if (_scrollController.position.pixels >= _scrollController.position.maxScrollExtent * 0.8 &&
+    if (_scrollController.position.pixels >=
+            _scrollController.position.maxScrollExtent * 0.8 &&
         !_isLoadingMore) {
       setState(() => _isLoadingMore = true);
-      Provider.of<StoryProvider>(context, listen: false).loadMoreStories().then((_) {
-        setState(() => _isLoadingMore = false);
-      });
+      Provider.of<StoryProvider>(context, listen: false).loadMoreStories().then(
+        (_) {
+          setState(() => _isLoadingMore = false);
+        },
+      );
     }
   }
 
@@ -73,20 +76,21 @@ class _StoriesListScreenState extends State<StoriesListScreen> {
                 height: 180,
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.vertical(top: Radius.circular(18)),
-                  border: Border.all(
-                    color: Colors.grey.shade200,
-                    width: 2,
-                  ),
+                  border: Border.all(color: Colors.grey.shade200, width: 2),
                 ),
                 child: ClipRRect(
                   borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
                   child: Image.network(
-                    story.coverImage,
+                    'https://gbvfield.e-saloon.online/public/${story.coverImage}',
                     fit: BoxFit.cover,
                     errorBuilder: (context, error, stackTrace) {
                       return Container(
                         color: Colors.grey[200],
-                        child: Icon(Icons.image_not_supported, color: Colors.grey[400], size: 48),
+                        child: Icon(
+                          Icons.image_not_supported,
+                          color: Colors.grey[400],
+                          size: 48,
+                        ),
                       );
                     },
                   ),
@@ -113,18 +117,26 @@ class _StoriesListScreenState extends State<StoriesListScreen> {
                         GestureDetector(
                           onTap: () async {
                             await storyProvider.toggleSave(story.id);
-                            if (storyProvider.error?.contains('Please log in') ?? false) {
+                            if (storyProvider.error?.contains(
+                                  'Please log in',
+                                ) ??
+                                false) {
                               if (!mounted) return;
                               ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(
                                   content: Row(
                                     children: [
                                       Expanded(
-                                        child: Text('Please log in to save stories'),
+                                        child: Text(
+                                          'Please log in to save stories',
+                                        ),
                                       ),
                                       TextButton(
                                         onPressed: () {
-                                          Navigator.pushReplacementNamed(context, '/login');
+                                          Navigator.pushReplacementNamed(
+                                            context,
+                                            '/login',
+                                          );
                                         },
                                         child: Text(
                                           'Log in',
@@ -142,8 +154,12 @@ class _StoriesListScreenState extends State<StoriesListScreen> {
                             }
                           },
                           child: Icon(
-                            story.isSaved ? Icons.bookmark : Icons.bookmark_border,
-                            color: story.isSaved ? Color(0xFF7C3AED) : Colors.black54,
+                            story.isSaved
+                                ? Icons.bookmark
+                                : Icons.bookmark_border,
+                            color: story.isSaved
+                                ? Color(0xFF7C3AED)
+                                : Colors.black54,
                           ),
                         ),
                       ],
@@ -165,18 +181,26 @@ class _StoriesListScreenState extends State<StoriesListScreen> {
                         GestureDetector(
                           onTap: () async {
                             await storyProvider.toggleLike(story.id);
-                            if (storyProvider.error?.contains('Please log in') ?? false) {
+                            if (storyProvider.error?.contains(
+                                  'Please log in',
+                                ) ??
+                                false) {
                               if (!mounted) return;
                               ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(
                                   content: Row(
                                     children: [
                                       Expanded(
-                                        child: Text('Please log in to like stories'),
+                                        child: Text(
+                                          'Please log in to like stories',
+                                        ),
                                       ),
                                       TextButton(
                                         onPressed: () {
-                                          Navigator.pushReplacementNamed(context, '/login');
+                                          Navigator.pushReplacementNamed(
+                                            context,
+                                            '/login',
+                                          );
                                         },
                                         child: Text(
                                           'Log in',
@@ -196,9 +220,13 @@ class _StoriesListScreenState extends State<StoriesListScreen> {
                           child: Row(
                             children: [
                               Icon(
-                                story.isLikedByUser ? Icons.favorite : Icons.favorite_border,
+                                story.isLikedByUser
+                                    ? Icons.favorite
+                                    : Icons.favorite_border,
                                 size: 20,
-                                color: story.isLikedByUser ? Colors.red : Colors.grey[600],
+                                color: story.isLikedByUser
+                                    ? Colors.red
+                                    : Colors.grey[600],
                               ),
                               SizedBox(width: 4),
                               Text(
@@ -283,9 +311,7 @@ class _StoriesListScreenState extends State<StoriesListScreen> {
 
           final stories = storyProvider.stories;
           if (stories.isEmpty) {
-            return Center(
-              child: Text('No stories available'),
-            );
+            return Center(child: Text('No stories available'));
           }
 
           return ListView.builder(
@@ -298,7 +324,9 @@ class _StoriesListScreenState extends State<StoriesListScreen> {
                   child: Padding(
                     padding: const EdgeInsets.all(16.0),
                     child: CircularProgressIndicator(
-                      valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF7C3AED)),
+                      valueColor: AlwaysStoppedAnimation<Color>(
+                        Color(0xFF7C3AED),
+                      ),
                     ),
                   ),
                 );
@@ -310,4 +338,4 @@ class _StoriesListScreenState extends State<StoriesListScreen> {
       ),
     );
   }
-} 
+}
